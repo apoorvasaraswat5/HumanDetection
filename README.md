@@ -1,5 +1,10 @@
 # HumanDetection
 
+## Useful Links
+[Jira](https://rwbaker.atlassian.net/jira/software/projects/OM596/boards/2)
+
+[Figma](https://www.figma.com/files/team/1287890789852400861)
+
 ## Meeting Logs -
 9/24/23 Meeting notes -
 
