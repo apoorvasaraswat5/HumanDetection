@@ -1,50 +1,69 @@
-# HumanDetection
+# Human Detection in Videos and Audios
+
+Fall 2023
+Team members - Apoorva Saraswat, Krisna Lach, Matthew Weiner, Peter Tran, Ryan Baker, Xingyu Bian
+
+## Goal
+
+To build a model that detects humans in the video based on the video and audio and creates thumbnail of faces found in the video along with their timestamps to make it easier to find people.
+
+## Utility
+
+A law enforcement official can use our tool while procesing videos and view timestamps where specific people appeared in the video. This can save their time and make it easier for them to process videos.
+
+## Dataset
+
+Dataset used - TBD
+
+# Sample Output
+
+TBD
+
+## Project Setup
+
+TBD
 
 ## Meeting Logs -
-9/24/23 Meeting notes -
 
-For now let's come up with what we're doing next week. Feel free to add in a thread
+**Week of 9/18/23 - 9/24/23: 1**
 
-Decide roles 
+- Decided roles for team members and divided the tasks accordingly for finding dataset, building a working model, and create UI mock up design.
+- Set up JIRA, GitHub, and Figma.
+- Decided tech stack:
+- BackEnd: Python, JS, Django, Fast API
+- ML: PyTorch, Transformers (Hugging Face, to fine tune models)
+- FrontEnd: NextJS, React, Svelte
+- Planned to create proof of concep by 9/28/23.
 
-Set up Jira, github, decision documentation
+**Week of 9/25/23 - 10/1/23: 2**
+- TBD
 
-Come up with user flow
+**Week of 10/2/23 - 10/8/23: 3**
+- TBD
 
-Find ~10 video datasets that we can potentially use
+**Week of 10/9/23 - 10/15/23: 4**
+- TBD
 
-If we plan to use separate models for audio and video, find the SOTA for each
+**Week of 10/16/23 - 10/22/23: 5**
+- TBD
 
-Create Proof of concept
+**Week of 10/23/23 - 10/29/23: 6**
+- TBD
 
-Find a working model to detect humans in photo/video
+**Week of 10/30/23 - 11/5/23: 7**
+- TBD
 
-Audio detection and video detection for humans
+**Week of 11/6/23 - 11/12/23: 8**
+- TBD
 
-Goal -
+**Week of 11/13/23 - 11/19/23: 9**
+- TBD
 
-detect humans in video along with audio
+**Week of 11/20/23 - 11/26/23: 10**
+- TBD
 
-group similar faces and add timestamp to make it easier to find people
+**Week of 11/27/23 - 12/3/23: 11**
+- TBD
 
-add a way to submit a video through frontend and process it in backend (API centered)
-
-create benchmarks to improve the model
-
-Tasks -
-
-Plan is to swap people between teams later on.
-
-find a good dataset for video and audio - Matthew, Krisna
-
-find a good working model online (hugging face, etc) and create a working demo backend and create a document - Xingyu, Apoorva
-
-design team for mock up UI (using Figma) - Ryan, Peter
-
-Tech Stack -
-
-BackEnd - Python, JS, Django, Fast API
-
-ML - PyTorch, Transformers (Hugging Face, to fine tune models)
-
-FrontEnd - NextJS, React, Svelte
+**Week of 12/4/23 - 12/10/23: 12**
+- TBD
