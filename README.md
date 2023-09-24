@@ -1,6 +1,7 @@
 # Human Detection in Videos and Audios
 
 Fall 2023
+
 Team members - Apoorva Saraswat, Krisna Lach, Matthew Weiner, Peter Tran, Ryan Baker, Xingyu Bian
 
 ## Goal
@@ -15,7 +16,7 @@ A law enforcement official can use our tool while procesing videos and view time
 
 Dataset used - TBD
 
-# Sample Output
+## Sample Output
 
 TBD
 
