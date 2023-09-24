@@ -30,11 +30,11 @@ TBD
 
 - Decided roles for team members and divided the tasks accordingly for finding dataset, building a working model, and create UI mock up design.
 - Set up JIRA, GitHub, and Figma.
-- Decided tech stack:
+- Decided tech stack -
 - BackEnd: Python, JS, Django, Fast API
 - ML: PyTorch, Transformers (Hugging Face, to fine tune models)
 - FrontEnd: NextJS, React, Svelte
-- Planned to create proof of concep by 9/28/23.
+- Planned to create proof of concept by 9/28/23.
 
 **Week of 9/25/23 - 10/1/23: 2**
 - TBD
