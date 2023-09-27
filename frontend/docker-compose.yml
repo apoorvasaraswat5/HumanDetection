@@ -1,0 +1,30 @@
+version: "3"
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydb
+    ports:
+      - "5434:5434"
+    volumes:
+      - ./data:/var/lib/postgresql/data
+  
+  # This can be used to check the postgres db on localhost:8081
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8081:8080
+
+  api:
+    build: .
+    command: npm run dev
+    environment:
+      NODE_ENV: $NODE_ENV
+      DATABASE_URL: $DATABASE_URL
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
