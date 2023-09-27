@@ -7,16 +7,11 @@ Make sure you're using the correct node version. Run
 ```bash
 nvm use
 ```
-First, run the development server:
+
+To run the server and database, use 
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+docker-compose up
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
