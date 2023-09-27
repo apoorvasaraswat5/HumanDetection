@@ -29,6 +29,106 @@ TBD
 
 [Figma](https://www.figma.com/files/team/1287890789852400861)
 
+# Branching and Commit Rules
+
+In a version control system like Git, maintaining a structured and organized workflow is crucial for effective collaboration and code management. Branching and commit rules help establish guidelines and best practices to ensure a smooth development process. This section outlines some essential rules and recommendations for branching and committing in a Git-based workflow.
+
+## Branching Rules
+
+### 1. **Use Descriptive Branch Names**
+
+   - Choose branch names that convey the purpose or feature you are working on.
+   - Avoid generic names like "feature," "fix," or "update."
+
+   Example:
+   ```shell
+   # Good branch name
+   git checkout -b feature/user-authentication
+
+   # Bad branch name
+   git checkout -b feature/new-feature
+   ```
+
+### 2. **Create Feature Branches**
+
+   - For each new feature, bug fix, or task, create a separate branch.
+   - This isolates changes and makes it easier to track and manage them.
+
+   Example:
+   ```shell
+   git checkout -b feature/new-feature
+   ```
+
+### 3. **Branch from the Latest Master (or Main) Branch**
+
+   - Always create feature branches based on the latest version of the master (or main) branch.
+   - This ensures that your branch includes all recent changes.
+
+   Example:
+   ```shell
+   git checkout -b feature/new-feature master
+   ```
+
+### 4. **Frequent Updates from Master (or Main)**
+
+   - Regularly merge or rebase your feature branch with the master (or main) branch to keep it up-to-date.
+   - This prevents conflicts and simplifies the final integration.
+
+   Example:
+   ```shell
+   # Merge
+   git checkout feature/new-feature
+   git merge master
+
+   # Rebase
+   git checkout feature/new-feature
+   git rebase master
+   ```
+
+## Commit Rules
+
+### 1. **Use Clear and Concise Commit Messages**
+
+   - Write descriptive commit messages that summarize the purpose of the commit.
+   - Follow a consistent format, such as the imperative mood ("Fix bug" instead of "Fixed bug").
+
+   Example:
+   ```shell
+   # Good commit message
+   git commit -m "Add user authentication functionality"
+
+   # Bad commit message
+   git commit -m "Updated stuff"
+   ```
+
+### 2. **Commit Small and Logical Units of Work**
+
+   - Each commit should represent a single, cohesive change.
+   - Avoid large, monolithic commits that mix unrelated changes.
+
+   Example:
+   ```shell
+   # Instead of
+   git commit -m "Update homepage, refactor authentication, and fix bug"
+
+   # Prefer
+   git commit -m "Update homepage layout"
+   git commit -m "Refactor user authentication"
+   git commit -m "Fix critical bug in user registration"
+   ```
+
+### 3. **Avoid Committing Temporary or Debug Code**
+
+   - Don't commit code that's meant for debugging or temporary purposes.
+   - Use Git's stash feature or a separate branch for such code.
+
+   Example:
+   ```shell
+   # Avoid committing debug code
+   git commit -m "Temporarily disable login validation for debugging"
+   ```
+
+By adhering to these branching and commit rules, your team can maintain a clean and efficient version control workflow, making it easier to collaborate, review code, and deploy changes with confidence. Consistency in branch and commit practices enhances code quality and project maintainability.
 ## Meeting Logs -
 
 **Week of 9/18/23 - 9/24/23: 1**
