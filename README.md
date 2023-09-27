@@ -144,7 +144,24 @@ By adhering to these branching and commit rules, your team can maintain a clean 
 - Planned to create proof of concept by 9/28/23.
 
 **Week of 9/25/23 - 10/1/23: 2**
-- TBD
+- FE: Created UI mock up design for the project. Added starter code for NextJS + TailwindCSS.
+- BE: Decided on FastAPI for the backend. Working on setting up the backend inference API.
+- ML: 
+   1. Found models for audio detection: https://huggingface.co/openai/whisper-small
+   1. Models for video/image detection: TBD
+- Data: 
+   1. Found dataset for audio detection: https://github.com/xiaobai1217/Awesome-Video-Datasets
+   1. dataset for video/image detection: 
+      1. https://commonvoice.mozilla.org/en/datasets 
+      1. https://github.com/jim-schwoebel/voice_datasets
+
+Next steps:
+- FE: Create UI from mockup design. List out potential queries to the backend.
+- BE: Set up the backend inference API. Set up uploading and fetching videos/media.
+- ML: 
+   1. Decide on dataset
+   1. Evaluate model performance
+
 
 **Week of 10/2/23 - 10/8/23: 3**
 - TBD
