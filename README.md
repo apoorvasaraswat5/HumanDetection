@@ -6,15 +6,17 @@ Team members - Apoorva Saraswat, Krisna Lach, Matthew Weiner, Peter Tran, Ryan B
 
 ## Goal
 
-To build a model that detects humans in the video based on the video and audio and creates thumbnail of faces found in the video along with their timestamps to make it easier to find people.
+To build a model that detects humans in the video based on the video and audio and creates thumbnails of faces found in the video along with their timestamps to make it easier to find people.
 
 ## Utility
 
-A law enforcement official can use our tool while procesing videos and view timestamps where specific people appeared in the video. This can save their time and make it easier for them to process videos.
+A law enforcement official can use our tool while processing videos and view timestamps where specific people appeared in the video. This can save their time and make it easier for them to process videos.
 
 ## Dataset
 
-Dataset used - TBD
+[Video Dataset](https://github.com/xiaobai1217/Awesome-Video-Datasets)
+
+[Audio (Mozilla CommonVoice)](https://commonvoice.mozilla.org/en/datasets)
 
 ## Sample Output
 
