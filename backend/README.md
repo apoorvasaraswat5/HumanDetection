@@ -1,3 +1,7 @@
+Install from requirements.txt:
+
+```pip install -r requirements.txt```
+
 Start the backend server using:
 
 ```uvicorn main:app --reload```
