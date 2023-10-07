@@ -1,5 +1,7 @@
 from typing import Union
 from fastapi import FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from dotenv import load_dotenv  # Corrected import statement
 import requests
@@ -8,7 +10,13 @@ import os
 load_dotenv()
 
 app = FastAPI()
+        
+app.mount("/static", StaticFiles(directory="../basic_frontend/src"), name="static")
 
+
+@app.get("/")
+async def index() -> FileResponse:
+    return FileResponse("../basic_frontend/pages/main.html", media_type="html")
 
 @app.post("/audio")
 def query(filename: str):
