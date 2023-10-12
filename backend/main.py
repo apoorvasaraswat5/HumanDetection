@@ -1,5 +1,5 @@
 from typing import Union
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
@@ -40,7 +40,7 @@ def query(filename: str):
     
     
 @app.post("/upload/")
-async def upload_file(file: UploadFile = File(...)):
+async def upload_file(file: UploadFile):
     try:
         # Upload file to S3
         s3_key = upload_S3(file.file, file.filename)

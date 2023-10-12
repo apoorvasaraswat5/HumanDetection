@@ -31,14 +31,17 @@ def save_file_record(filename,s3_key):
     db.refresh(db_record)
     db.close()
     
-def download_file(filename):
+def download_file_by_name(filename):
     db = SessionLocal()
     db_record = db.query(VideoFileRecord).filter(VideoFileRecord.filename == filename).first()
     db.close()
     if db_record is None:
         return {"status": "error", "body": "file not found"}
     s3_key = db_record.s3_key
+    return download_file_by_key(s3_key)
     
+
+def download_file_by_key(s3_key):
     try:
         # Retrieve file from S3
         response = s3_client.get_object(Bucket=BUCKET_NAME, Key=s3_key)
