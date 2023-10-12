@@ -1,2 +1,5 @@
 .env
 .history 
+
+__pycache__/
+*.py[cod]

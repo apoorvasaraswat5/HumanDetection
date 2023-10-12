@@ -11,6 +11,11 @@ from pyannote.audio import Pipeline
 from transformers import pipeline
 
 
+# Start backend inside file
+import uvicorn
+if __name__ == '__main__':
+    uvicorn.run("main:app", reload=True)
+
 load_dotenv()
 
 app = FastAPI()
