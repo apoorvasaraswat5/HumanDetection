@@ -18,6 +18,9 @@ app = FastAPI()
         
 app.mount("/static", StaticFiles(directory="../basic_frontend/src"), name="static")
 
+@app.get("/favicon.ico")
+async def favicon() -> FileResponse:
+    return FileResponse("../basic_frontend/src/icon-park-outline_video.png", media_type="png")
 
 @app.get("/")
 async def index() -> FileResponse:
