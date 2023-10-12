@@ -27,6 +27,15 @@ body{
     grid-template-columns: 40px auto 60px;
 }
 
+.selected{
+    background-color: rgb(101, 103, 212);
+    opacity: 0.75;
+}
+
+.videoItem:hover{
+    background-color: lightblue;
+}
+
 .sidebarVideoTitle{
     text-align: center;
     font-size: large;
