@@ -164,7 +164,14 @@ Next steps:
 
 
 **Week of 10/2/23 - 10/8/23: 3**
-- TBD
+- Action item: Getting the video model end point working - Apoorva, Xingyu
+- UI Frontend - Get a rough demo working. Ryan: Added a mock UI
+- Audio - Implemented hugging face endpoint
+- Using speaker model vs speech model - can discuss with Ben
+- Matt: Working on getting data on cloud working
+- Work on file uploading on backend - Next week
+- Get a model working for demo
+- Housekeeping - Protect main branch - Next week (add .gitignore for S3 credentials) - Apoorva
 
 **Week of 10/9/23 - 10/15/23: 4**
 - TBD

@@ -1,120 +1,71 @@
+from typing import Union
 from fastapi import FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+from pydantic import BaseModel
 from dotenv import load_dotenv  # Corrected import statement
 import requests
 import os
-import io
-from google.cloud import videointelligence_v1 as videointelligence
+import torch
+from pyannote.audio import Pipeline
+from transformers import pipeline
+
+
+# Start backend inside file
+import uvicorn
+if __name__ == '__main__':
+    uvicorn.run("main:app", reload=True)
 
 load_dotenv()
 
 app = FastAPI()
 
+app.mount("/static", StaticFiles(directory="../basic_frontend/src"), name="static")
+
+@app.get("/favicon.ico")
+async def favicon() -> FileResponse:
+    return FileResponse("../basic_frontend/src/icon-park-outline_video.png", media_type="png")
+
+@app.get("/")
+async def index() -> FileResponse:
+    return FileResponse("../basic_frontend/pages/main.html", media_type="html")
+
 
 @app.post("/audio")
-def query(filename: str):
-    API_URL = "https://api-inference.huggingface.co/models/openai/whisper-small"
-    headers = {"Authorization": os.getenv("HF_KEY")}
-
-    try:
+def query(filename: str, local=True):
+    if local:
+        # use speech pipeline hosted locally
         with open(filename, "rb") as f:
             data = f.read()
-        response = requests.post(API_URL, headers=headers, data=data)
-        response.raise_for_status()
-        return response.json()
+        pipe = pipeline("automatic-speech-recognition", model="openai/whisper-small")
+        res = pipe(data)
+        return res
+    else:
+        API_URL = "https://api-inference.huggingface.co/models/openai/whisper-small"
+        headers = {"Authorization": "Bearer " + os.getenv("HF_KEY")}
 
-    except requests.exceptions.RequestException as e:
-        return HTTPException(
-            status_code=500,
-            detail=f"Failed to connect to huggingface inference API: {e}",
-        )
+        try:
+            with open(filename, "rb") as f:
+                data = f.read()
+            response = requests.post(API_URL, headers=headers, data=data)
+            response.raise_for_status()
+            return response.json()
 
-
-@app.post("/video")
-def detect_person(local_file_path: str):
-    """Detects people in a video from a local file."""
-
-    response = dict()
-
-    client = videointelligence.VideoIntelligenceServiceClient()
-
-    with io.open(local_file_path, "rb") as f:
-        input_content = f.read()
-
-    # Configure the request
-    config = videointelligence.types.PersonDetectionConfig(
-        include_bounding_boxes=True,
-        include_attributes=True,
-        include_pose_landmarks=True,
-    )
-    context = videointelligence.types.VideoContext(person_detection_config=config)
-
-    # Start the asynchronous request
-    operation = client.annotate_video(
-        request={
-            "features": [videointelligence.Feature.PERSON_DETECTION],
-            "input_content": input_content,
-            "video_context": context,
-        }
-    )
-
-    print("\nProcessing video for person detection annotations.")
-    result = operation.result(timeout=300)
-
-    print("\nFinished processing.\n")
-
-    # Retrieve the first result, because a single video was processed.
-    annotation_result = result.annotation_results[0]
-
-    response["person_detected"] = list()
-    for annotation in annotation_result.person_detection_annotations:
-        print("Person detected:")
-        for track in annotation.tracks:
-            print(
-                "Segment: {}s to {}s".format(
-                    track.segment.start_time_offset.seconds
-                    + track.segment.start_time_offset.microseconds / 1e6,
-                    track.segment.end_time_offset.seconds
-                    + track.segment.end_time_offset.microseconds / 1e6,
-                )
+        except requests.exceptions.RequestException as e:
+            return HTTPException(
+                status_code=500,
+                detail=f"Failed to connect to huggingface inference API: {e}",
             )
-            response["person_detected"].append(
-                "Segment: {}s to {}s".format(
-                    track.segment.start_time_offset.seconds
-                    + track.segment.start_time_offset.microseconds / 1e6,
-                    track.segment.end_time_offset.seconds
-                    + track.segment.end_time_offset.microseconds / 1e6)
-            )
-            # Each segment includes timestamped objects that include
-            # characteristic - -e.g.clothes, posture of the person detected.
-            # Grab the first timestamped object
-            timestamped_object = track.timestamped_objects[0]
-            box = timestamped_object.normalized_bounding_box
-            print("Bounding box:")
-            print("\tleft  : {}".format(box.left))
-            print("\ttop   : {}".format(box.top))
-            print("\tright : {}".format(box.right))
-            print("\tbottom: {}".format(box.bottom))
 
-            # Attributes include unique pieces of clothing,
-            # poses, or hair color.
-            print("Attributes:")
-            for attribute in timestamped_object.attributes:
-                print(
-                    "\t{}:{} {}".format(
-                        attribute.name, attribute.value, attribute.confidence
-                    )
-                )
 
-            # Landmarks in person detection include body parts such as
-            # left_shoulder, right_ear, and right_ankle
-            print("Landmarks:")
-            for landmark in timestamped_object.landmarks:
-                print(
-                    "\t{}: {} (x={}, y={})".format(
-                        landmark.name,
-                        landmark.confidence,
-                        landmark.point.x,  # Normalized vertex
-                        landmark.point.y,  # Normalized vertex
-                    )
-                )
-    return response
+@app.post("/diarize")
+def diarize(filename: str):
+    pipeline = Pipeline.from_pretrained(
+        "pyannote/speaker-diarization-3.0",
+        use_auth_token=os.getenv("HF_KEY"),
+    )
+    # use pretrained pipeline
+    diarization = pipeline(filename)
+
+    rttm_content = diarization.to_rttm()
+    return {"rttm": rttm_content}
