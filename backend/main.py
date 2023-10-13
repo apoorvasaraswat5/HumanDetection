@@ -7,6 +7,8 @@ from dotenv import load_dotenv  # Corrected import statement
 import requests
 import os
 import torch
+import cv2
+import imutils
 from pyannote.audio import Pipeline
 from transformers import pipeline
 
@@ -69,3 +71,70 @@ def diarize(filename: str):
 
     rttm_content = diarization.to_rttm()
     return {"rttm": rttm_content}
+
+
+@app.post("/video")
+def detect_person(local_file_path: str):
+    output_path = humanDetector(local_file_path)
+    print("local path: ", local_file_path)
+    return {"output_path": output_path}
+
+
+def detect(frame):
+    HOGCV = cv2.HOGDescriptor()
+    HOGCV.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
+    bounding_box_cordinates, weights = HOGCV.detectMultiScale(frame, winStride=(4, 4), padding=(8, 8), scale=1.03)
+
+    person = 1
+    for x, y, w, h in bounding_box_cordinates:
+        cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+        cv2.putText(frame, f'person {person}', (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+        person += 1
+
+    cv2.putText(frame, 'Status : Detecting ', (40, 40), cv2.FONT_HERSHEY_DUPLEX, 0.8, (255, 0, 0), 2)
+    cv2.putText(frame, f'Total Persons : {person-1}', (40, 70), cv2.FONT_HERSHEY_DUPLEX, 0.8, (255, 0, 0), 2)
+    cv2.imshow('output', frame)
+
+    return frame
+
+
+def humanDetector(local_file_path):
+    # image_path = args["image"]
+    video_path = local_file_path
+    output_path = os.getcwd() + "\\..\\output\\output.mp4"
+    print("output: ", output_path)
+    writer = cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*'MJPG'), 10, (600, 600))
+
+    if video_path is not None:
+        print('[INFO] Opening Video from path.')
+        return detectByPathVideo(video_path, writer, output_path)
+
+
+def detectByPathVideo(path, writer, output_path):
+    video = cv2.VideoCapture(path)
+    check, frame = video.read()
+    if not check:
+        print('Video Not Found. Please Enter a Valid Path (Full path of Video Should be Provided).')
+        print("path: ", path)
+        return
+
+    print('Detecting people...')
+    while video.isOpened():
+        # check is True if reading was successful
+        check, frame = video.read()
+
+        if check:
+            frame = imutils.resize(frame, width=min(800, frame.shape[1]))
+            frame = detect(frame)
+
+            if writer is not None:
+                writer.write(frame)
+
+            key = cv2.waitKey(1)
+            if key == ord('q'):
+                break
+        else:
+            break
+    video.release()
+    cv2.destroyAllWindows()
+    return output_path
