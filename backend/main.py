@@ -45,7 +45,7 @@ async def upload_file(file: UploadFile):
         # Upload file to S3
         s3_key = upload_S3(file.file, file.filename)
     except:
-        HTTPException(
+        return HTTPException(
             status_code=500,
             detail=f"Failed to upload file {file.filename} to s3",
         )
@@ -54,7 +54,7 @@ async def upload_file(file: UploadFile):
         # Save file record to database
         save_file_record(file.filename, s3_key)
     except:
-        HTTPException(
+        return HTTPException(
             status_code=500,
             detail=f"Failed to save file {file.filename} to database",
         )
