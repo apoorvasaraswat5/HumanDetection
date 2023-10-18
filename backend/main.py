@@ -42,11 +42,11 @@ def query(filename: str):
 @app.post("/upload/")
 async def upload_file(file: UploadFile):
     try:
-        s3_key = utils.upload_file(file)
+        data = utils.upload_file(file)
            
     except Exception as e:
         return HTTPException(
             status_code=500,
             detail=f"Failed to upload file {file.filename} to s3.\nError that occured: {str(e)}",
         )
-    return {"message": "File uploaded successfully","s3_key": s3_key}
+    return {"message": "File uploaded successfully","data": data}
