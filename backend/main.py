@@ -15,11 +15,9 @@ import cv2
 import imutils
 from pyannote.audio import Pipeline
 from transformers import pipeline
-from gotrue.errors import AuthApiError
-from utils import convert_to_wav
-from whisper_diarization import whisper_diarization
-from transformers import AutoFeatureExtractor, AutoModelForObjectDetection
-from PIL import Image
+from speechbox import ASRDiarizationPipeline
+from datasets import load_dataset
+
 
 # Start backend inside file
 import uvicorn
@@ -197,103 +195,32 @@ def transcribe(filename: str):
     return whisper_diarization(filename)
 
 
-@app.post("/video")
-def detect_person(local_file_path: str, s3_key_video: str):
-    # this needs s3_key_video to identify which video we need to add the output for
-    video_path, images_path = humanDetector(local_file_path)
-    raw_data = utils.upload_output_video_and_images(video_path, images_path, s3_key_video)
-    data = raw_data[1][0]
-    remove_temp_files(video_path, images_path)
-    return {"output": data}
+@app.post("/transcribe")
+def transcribe(filename: str):
+    # get pretrained diarization pipeline
+    diarization_pipeline = Pipeline.from_pretrained(
+        "pyannote/speaker-diarization-3.0",
+        use_auth_token=os.getenv("HF_KEY"),
+    )
 
+    # get pretrained asr pipeline
+    asr_pipeline = pipeline(
+        "automatic-speech-recognition",
+        model="openai/whisper-base",
+    )
 
-def humanDetector(local_file_path):
-    print("inside humanDetector")
-    # Initialize the object detection model (change the model name)
-    model_name = "facebook/detr-resnet-50"
-    feature_extractor = AutoFeatureExtractor.from_pretrained(model_name)
-    model = AutoModelForObjectDetection.from_pretrained(model_name)
+    # load dataset of concatenated LibriSpeech samples
+    concatenated_librispeech = load_dataset(
+        "sanchit-gandhi/concatenated_librispeech", split="train", streaming=True
+    )
+    # get first sample
+    sample = next(iter(concatenated_librispeech))
 
-    object_detection = pipeline("object-detection", model=model, feature_extractor=feature_extractor)
+    # get composite pipeline
+    comp_pipeline = ASRDiarizationPipeline(
+        asr_pipeline=asr_pipeline, diarization_pipeline=diarization_pipeline
+    )
 
-    # Initialize the face detection model (use your own pre-trained model)
-    cap = cv2.VideoCapture(local_file_path)
+    output = comp_pipeline(sample["audio"])
 
-    # Initialize variables for face tracking
-    faces = []
-    face_id = 0
-
-    # Create a VideoWriter object to save the output videos
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    video_path = os.path.join(os.getcwd(), "output_video.mp4")
-    images_path = os.path.join(os.getcwd(), "images")
-
-    if not os.path.exists("images"):
-        os.mkdir("images")
-
-    output_video = cv2.VideoWriter(video_path, fourcc, 20.0, (640, 480))
-
-    while cap.isOpened():
-        ret, frame = cap.read()
-
-        if not ret:
-            break
-
-        # Resize the frame for faster processing
-        frame = cv2.resize(frame, (640, 480))
-        color_converted = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        pil_image = Image.fromarray(color_converted)
-
-        # Detect objects in the frame using the object detection model
-        results = object_detection(pil_image)
-
-        # Extract human objects from detected objects
-        humans = [obj for obj in results if obj['label'] == 'person']
-        print("human detected")
-        for human in humans:
-            x1, y1, x2, y2 = human['box'].values()
-            # Draw a rectangle around the detected human
-            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-
-            # Extract the human face from the region
-            face = frame[y1:y2, x1:x2]
-            try:
-                face = cv2.resize(face, (640, 480))
-            except Exception:
-                continue
-
-            is_unique = True
-            for existing_face in faces:
-                print("checking face similarity..")
-                similarity = cv2.matchTemplate(face, existing_face, cv2.TM_CCOEFF_NORMED)
-                if similarity.max(initial=None) > 0.25:  # Adjust the threshold as needed
-                    print("not unique")
-                    is_unique = False
-                    break
-            # Check if the face is unique by comparing with previously detected faces
-
-            if is_unique:
-                print("unique")
-                faces.append(face)
-                face_id += 1
-                cv2.imwrite(os.path.join("images", f"unique_face_{face_id}.jpg"), face)
-
-        print("writing frame")
-        # Write the frame to the output videos
-        output_video.write(frame)
-
-    print("done")
-    cap.release()
-    output_video.release()
-    cv2.destroyAllWindows()
-    return video_path, images_path
-
-
-def remove_temp_files(video_path, images_path):
-    print("Removing temporary files")
-    try:
-        os.remove(video_path)
-        shutil.rmtree(images_path)
-    except OSError as e:
-        print("Error: %s - %s." % (e.filename, e.strerror))
-        raise e
+    return output
