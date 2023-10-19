@@ -10,13 +10,11 @@ from dotenv import load_dotenv  # Corrected import statement
 import requests
 import utils
 import os
-import torch
-import cv2
-import imutils
 from pyannote.audio import Pipeline
 from transformers import pipeline
 from speechbox import ASRDiarizationPipeline
 from datasets import load_dataset
+from utils import convert_to_wav
 
 
 # Start backend inside file
@@ -127,7 +125,7 @@ def download_file(file_path):
     return Response(file,media_type=content_type)
 
 
-@app.post("/audio")
+@app.post("/whisper")
 def query(filename: str, local=True):
     if local:
         # use speech pipeline hosted locally
