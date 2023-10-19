@@ -1,5 +1,4 @@
 
-
 function createVideoSidebarItem(filename, size){
     list = document.getElementById('scrollable');
     temp = document.createElement('div')
@@ -26,6 +25,12 @@ function createVideoSidebarItem(filename, size){
     list.appendChild(temp);
 }
 
+createVideoSidebarItem('TEST', 'TEST');
+createVideoSidebarItem('TEST', 'TEST');
+createVideoSidebarItem('TEST', 'TEST');
+createVideoSidebarItem('TEST', 'TEST');
+createVideoSidebarItem('TEST', 'TEST');
+createVideoSidebarItem('TEST', 'TEST');
 createVideoSidebarItem('TEST', 'TEST');
 createVideoSidebarItem('TEST', 'TEST');
 createVideoSidebarItem('TEST', 'TEST');
