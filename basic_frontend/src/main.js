@@ -1,4 +1,3 @@
-
 function createVideoSidebarItem(filename, size){
     list = document.getElementById('scrollable');
     temp = document.createElement('div')

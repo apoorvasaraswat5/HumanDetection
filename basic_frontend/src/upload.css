@@ -1,0 +1,68 @@
+/* Add a black background color to the top navigation */
+body{
+    height: 200vh;
+}
+
+.topnav {
+    overflow: hidden;
+    text-align: center;
+    width: 100%;
+    position: fixed;
+    background-color: white;
+    top: 0;
+  }
+  
+  /* Style the links inside the navigation bar */
+    .topnav div.selector {
+        margin: auto;
+        display: grid;
+        grid-template-columns: 50% 50%;
+        background-color: #ddd;
+        width: 10%;
+        height: 40px;
+        border-radius: 20px;
+    }
+
+        .selector div{
+            color: #333;
+            line-height: 40px;
+        }
+
+        .selector div.active {
+            border-radius: 20px;
+            background-color: #04AA6D;
+            color: white;
+        }
+.fileitem{
+    background-color: lightgray;
+    height: 60px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 60px auto 60px;
+    grid-template-rows: 20% 20% 20% 20% 20%;
+    align-items: center;
+    border-style: none none solid none;
+    border-width: 3px;
+}
+    .fileitem img.fileimg{
+        grid-column: 1;
+        grid-row: 3;
+        width: 100%;
+    }
+
+    .fileitem div.filename{
+        margin-left: 5%;
+        grid-column: 2;
+        grid-row: 2;
+    }
+
+    .fileitem div.filesize{
+        grid-column: 3;
+        grid-row: 3;
+    }
+
+    .fileitem div.filedate{
+        margin-left: 5%;
+        grid-column: 2;
+        grid-row: 4;
+    }
