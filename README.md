@@ -174,7 +174,12 @@ Next steps:
 - Housekeeping - Protect main branch - Next week (add .gitignore for S3 credentials) - Apoorva
 
 **Week of 10/9/23 - 10/15/23: 4**
-- TBD
+- updated the database to use supabase and set it up - Matt
+- updated the video model to use the YOLO model to get better accuracy on detecting people in a video - Apoorva
+- Researched on using WhisperX for the audio model along with diarization - speaker labels and timestamps - Xingyu & Krisna
+- might use custom datasets to test and baseline the existing models in the coming weeks.
+- video UI component is now working with minor issues. To connect with backend team to integrate frontend and backend - Peter
+- video upload on UI by drag drop or click button. To be integrated with backend. Might work on using NextJS on the UI. - Ryan
 
 **Week of 10/16/23 - 10/22/23: 5**
 - TBD
