@@ -9,59 +9,15 @@
             </div>
         </div>
         <div style="height: 40px;"></div>
-        <div class="fileitem">
-            <img src="static/icon-park-outline_video.png" class="fileimg">
-            <div class="filename">Video 1</div>
-            <div class="filesize">10 GB</div>
-            <div class="filedate">10/10/2023</div>
         </div>
-        <div class="fileitem">
-            <img src="static/icon-park-outline_video.png" class="fileimg">
-            <div class="filename">Video 1</div>
-            <div class="filesize">10 GB</div>
-            <div class="filedate">10/10/2023</div>
-        </div>
-        <div class="fileitem">
-            <img src="static/icon-park-outline_video.png" class="fileimg">
-            <div class="filename">Video 1</div>
-            <div class="filesize">10 GB</div>
-            <div class="filedate">10/10/2023</div>
-        </div>
-        <div class="fileitem">
-            <img src="static/icon-park-outline_video.png" class="fileimg">
-            <div class="filename">Video 1</div>
-            <div class="filesize">10 GB</div>
-            <div class="filedate">10/10/2023</div>
-        </div>
-        <div class="fileitem">
-            <img src="static/icon-park-outline_video.png" class="fileimg">
-            <div class="filename">Video 1</div>
-            <div class="filesize">10 GB</div>
-            <div class="filedate">10/10/2023</div>
-        </div>
-        <div class="fileitem">
-            <img src="static/icon-park-outline_video.png" class="fileimg">
-            <div class="filename">Video 1</div>
-            <div class="filesize">10 GB</div>
-            <div class="filedate">10/10/2023</div>
-        </div>
-        <div class="fileitem">
-            <img src="static/icon-park-outline_video.png" class="fileimg">
-            <div class="filename">Video 1</div>
-            <div class="filesize">10 GB</div>
-            <div class="filedate">10/10/2023</div>
-        </div>
-        <div class="fileitem">
-            <img src="static/icon-park-outline_video.png" class="fileimg">
-            <div class="filename">Video 1</div>
-            <div class="filesize">10 GB</div>
-            <div class="filedate">10/10/2023</div>
-        </div>
-        <div class="fileitem">
-            <img src="static/icon-park-outline_video.png" class="fileimg">
-            <div class="filename">Video 1</div>
-            <div class="filesize">10 GB</div>
-            <div class="filedate">10/10/2023</div>
+        <div id="recentlist"></div>
+        <div id="uploadarea">
+            <div id="droparea">
+                <form class="dropform">
+                    <input type="file" id="fileElem" multiple accept="video/*" onchange="sendFiles(this.files)">
+                    <label for="fileElem" class="prompttext">Click to browse or drag and drop files</div>
+                </form>
+            </div>
         </div>
     </body>
     <script src="static/upload.js"></script>
