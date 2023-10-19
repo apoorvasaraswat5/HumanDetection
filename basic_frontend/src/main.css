@@ -24,14 +24,23 @@ body{
     opacity: 0.5;
     margin: 5px;
     display: grid;
-    grid-template-columns: 40px auto 60px;
+    grid-template-columns: 5vw auto 5vw;
+}
+
+.selected{
+    background-color: rgb(101, 103, 212);
+    opacity: 0.75;
+}
+
+.videoItem:hover{
+    background-color: lightblue;
 }
 
 .sidebarVideoTitle{
     text-align: center;
-    font-size: large;
     font-weight: bold;
-    line-height: 150px;
+    margin-top: 70px;
+    font-size: 1vw;
 }
 
 .fileSize{
@@ -41,13 +50,13 @@ body{
     height: 50px;
     opacity: 1;
     border-radius: 10px;
-    font-size:small;
+    font-size: 0.75vw;
     color: white;
     text-align: center;
     line-height: 50px;
 }
 
 .sidebarVideoIcon{
-    width: 40px;
-    padding-top: 55px;
+    width: 5vw;
+    padding-top: calc(70px - 2.5vw);
 }
