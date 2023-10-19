@@ -76,7 +76,21 @@ function getRecent() {
 }
 
 function sendFiles(files){
-    console.log(files);
+    console.log(files)
+    for(file of files){
+        formData = new FormData();
+        formData.append('file',file);
+        console.log('Starting ' + file.name)
+        fetch('/upload', {
+            method: 'POST',
+            body: formData
+        }).then(() => {
+            console.log('Completed ' + file.name)
+        }).catch(() => {
+            console.log('Error ' + file.name)
+        })
+        console.log('End ' + file.name)
+    }
 }
 
 let dropArea = document.getElementById('droparea');
@@ -98,4 +112,10 @@ let dropArea = document.getElementById('droparea');
     dropArea.addEventListener(eventName, (e) =>{
         dropArea.className = '';
     }, false)
+});
+
+dropArea.addEventListener('drop', (e) => {
+    if(e.dataTransfer.items){
+        sendFiles(e.dataTransfer.files);
+    }
 });
