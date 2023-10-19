@@ -30,7 +30,7 @@ async def favicon() -> FileResponse:
 
 @app.get("/")
 async def index() -> FileResponse:
-    return FileResponse("../basic_frontend/pages/main.html", media_type="html")
+    return FileResponse("../basic_frontend/pages/upload.html", media_type="html")
 
 
 @app.post("/audio")
