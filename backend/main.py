@@ -1,10 +1,11 @@
 from typing import Union
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from dotenv import load_dotenv  # Corrected import statement
 import requests
+import utils
 import os
 import torch
 import cv2
@@ -17,6 +18,7 @@ from transformers import pipeline
 import uvicorn
 if __name__ == '__main__':
     uvicorn.run("main:app", reload=True)
+
 
 load_dotenv()
 
@@ -31,7 +33,18 @@ async def favicon() -> FileResponse:
 @app.get("/")
 async def index() -> FileResponse:
     return FileResponse("../basic_frontend/pages/main.html", media_type="html")
-
+  
+@app.post("/upload/")
+async def upload_file(file: UploadFile):
+    try:
+        data = utils.upload_file(file)
+           
+    except Exception as e:
+        return HTTPException(
+            status_code=500,
+            detail=f"Failed to upload file {file.filename} to s3.\nError that occured: {str(e)}",
+        )
+    return {"message": "File uploaded successfully","data": data}
 
 @app.post("/audio")
 def query(filename: str, local=True):
