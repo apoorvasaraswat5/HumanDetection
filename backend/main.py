@@ -37,7 +37,8 @@ async def index() -> FileResponse:
 @app.post("/upload/")
 async def upload_file(file: UploadFile):
     try:
-        data = utils.upload_file(file)
+        raw_data = utils.upload_file(file)
+        data = raw_data[1][0]
            
     except Exception as e:
         return HTTPException(
