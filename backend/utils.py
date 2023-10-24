@@ -17,7 +17,8 @@ TEMPORARY_USER_ID = "temp_user"
 
 supabase = create_client(os.getenv('SUPABASE_URL'), os.getenv('SUPABASE_KEY'))
 
-
+def get_supabase():
+    return supabase
 
 def upload_file(file):
     s3_key = f"videos/{file.filename}_{uuid.uuid4()}"

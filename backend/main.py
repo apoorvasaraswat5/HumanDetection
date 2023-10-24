@@ -1,5 +1,5 @@
 from typing import Union
-from fastapi import FastAPI, HTTPException, UploadFile
+from fastapi import FastAPI, HTTPException, UploadFile, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
@@ -12,6 +12,7 @@ import cv2
 import imutils
 from pyannote.audio import Pipeline
 from transformers import pipeline
+from supabase.auth import UserCredentials
 
 
 # Start backend inside file
@@ -33,6 +34,32 @@ async def favicon() -> FileResponse:
 @app.get("/")
 async def index() -> FileResponse:
     return FileResponse("../basic_frontend/pages/main.html", media_type="html")
+
+@app.post("/register")
+async def register_user(email: str, password:str,supabase = Depends(utils.get_supabase)):
+    user_credentials = UserCredentials(email=email, password = password)
+    response = supabase.auth.sign_up(user_credentials)
+    if response['status'] == 200:
+        return {"message": "Registration successful","user":response["user"]}
+    else:
+        raise HTTPException(status_code=400,detail = response["error"]["message"])
+
+@app.post("/login")
+async def login(email: str, password:str,supabase = Depends(utils.get_supabase)):
+    user_credentials = UserCredentials(email=email,password=password)
+    response = supabase.auth.sign_in_with_password(user_credentials)
+    if response['status'] == 200:
+        return {"message": "Registration successful","user":response["user"],"access_token": response["access_token"]}
+    else:
+        raise HTTPException(status_code=401,detail = "Invalid Credentials")
+
+@app.post("/logout")
+async def logout(supabase = Depends(utils.get_supabase)):
+    response = supabase.auth.sign_out()
+    if response["status"] == 200:
+        return {"message": "User signed out successfully"}
+    else:
+        raise HTTPException(status_code=400, detail=response["error"]["message"])
   
 @app.post("/upload/")
 async def upload_file(file: UploadFile):
