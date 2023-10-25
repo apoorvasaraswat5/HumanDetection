@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+    <link rel="stylesheet" href="static/upload.css">
+    <body>
+        <div class="topnav">
+            <div class="selector">
+                <div id="recent" class="active">Recent</div>
+                <div id="upload">Upload</div>
+            </div>
+        </div>
+        <div style="height: 40px;"></div>
+        </div>
+        <div id="recentlist"></div>
+        <div id="uploadarea">
+            <div id="droparea">
+                <form class="dropform">
+                    <input type="file" id="fileElem" multiple accept="video/*" onchange="sendFiles(this.files)">
+                    <label for="fileElem" class="prompttext">Click to browse or drag and drop files</div>
+                </form>
+            </div>
+        </div>
+    </body>
+    <script src="static/upload.js"></script>
+</html>
