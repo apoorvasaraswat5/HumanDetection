@@ -106,7 +106,7 @@ async def upload_file(file: UploadFile):
 
 
 @app.get("/fetchData")
-def fetch_data(user_id=0):
+def fetch_data():
     try:
         raw_data = utils.get_data(user_id)
         data = raw_data[1]
