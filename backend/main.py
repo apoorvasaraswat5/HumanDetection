@@ -91,7 +91,8 @@ async def upload_file(file: UploadFile):
 @app.post("/fetchData")
 def fetch_data():
     try:
-        data = utils.get_data()
+        raw_data = utils.get_data()
+        data = raw_data[1]
 
     except Exception as e:
         return HTTPException(
