@@ -34,6 +34,7 @@ app = FastAPI()
 
 origins = [
     "http://localhost:3000",
+    "*" #We may want to remove this in the future
 ]
 
 app.add_middleware(
@@ -88,9 +89,8 @@ async def logout(supabase=Depends(utils.get_supabase)):
         response = supabase.auth.sign_out()
         return {"message": "User signed out successfully"}
     except AuthApiError as e:
-        raise HTTPException(status_code=401, detail=str(e))
-
-
+        raise HTTPException(status_code=400,detail = str(e))
+    
 @app.post("/upload")
 async def upload_file(file: UploadFile):
     try:
@@ -102,7 +102,7 @@ async def upload_file(file: UploadFile):
             status_code=500,
             detail=f"Failed to upload file {file.filename} to s3.\nError that occurred: {str(e)}",
         )
-    return {"message": "File uploaded successfully", "data": data}
+    return {"message": "File uploaded successfully","file-name": file.filename}
 
 
 @app.get("/fetchData")
