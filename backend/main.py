@@ -88,7 +88,7 @@ async def upload_file(file: UploadFile):
     return {"message": "File uploaded successfully","data": data}
 
 
-@app.post("/fetchData")
+@app.get("/fetchData")
 def fetch_data():
     try:
         raw_data = utils.get_data()
