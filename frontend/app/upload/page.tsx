@@ -56,9 +56,13 @@ export default function page() {
             method: 'POST',
             body: formData
         }).then((res) => {
-            console.log(res.json().then(body => console.log(body)))
+            res.json().then(body => {
+              if(body?.status_code !== 200){
+                alert('Error ' +body?.status_code + ': ' + body?.detail)
+              }
+            })
         }).catch((err) => {
-            console.log('Error: ' + err)
+            alert('Error: ' + err)
         })
         console.log('End ' + file.name)
     }
