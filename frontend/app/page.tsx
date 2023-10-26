@@ -1,6 +1,5 @@
 "use client"
 import Card from "@/components/Card";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/Dialog";
 import { useState } from "react";
 export default function Home() {
   const [Videos, setVideos] = useState([
@@ -27,7 +26,7 @@ export default function Home() {
   }
   return (
     <div className="main-content flex h-screen">
-      <div className=" sidebar w-1/4 space-y-3 bg-gray-300 overflow-scroll">
+      <div className="sidebar w-1/4 space-y-3 bg-gray-300 overflow-scroll">
         {Videos.map((video) => {
           return <Card onClick={onClick} fileName={video} key={video} size="100MB"/>;
         })}
