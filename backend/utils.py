@@ -36,8 +36,8 @@ def upload_file(file):
     s3_key_thumbnail = f"thumbnails/{file.filename}_{uuid_val}_thumbnail"
     file.file.seek(0)
     video_content = file.file.read()
-    supabase.storage.from_("test").upload(path=s3_key_video,file=video_content,file_options={"content-type": file.content_type})
-    supabase.storage.from_("test").upload(path=s3_key_thumbnail,file=thumbnail, file_options={"content-type": "image/x-png"})
+    supabase.storage.from_(BUCKET_NAME).upload(path=s3_key_video,file=video_content,file_options={"content-type": file.content_type})
+    supabase.storage.from_(BUCKET_NAME).upload(path=s3_key_thumbnail,file=thumbnail, file_options={"content-type": "image/x-png"})
     data,count = supabase.table(TABLE_NAME).insert({"filename": file.filename,"video_path":s3_key_video, "thumbnail_path":s3_key_thumbnail, "user_id": user_id}).execute()
     return data
 
