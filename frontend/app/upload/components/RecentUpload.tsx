@@ -8,7 +8,7 @@ export default function RecentUpload({
     date = "01/01/2020",
     size = "0kb",
   }: {
-    onClick: () => void;
+    onClick: (event: any) => void;
     thumbnail?: string;
     fileName?: string;
     date?: string;
