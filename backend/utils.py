@@ -34,3 +34,8 @@ def download_file_by_key(s3_key):
 def get_keys_for_user(user_id):
     data,count = supabase.table(TABLE_NAME).select('s3_key').eq('user_id',user_id).execute()
     return data
+
+
+def get_data():
+    data,count = supabase.table(TABLE_NAME).select('*').execute()
+    return data
