@@ -182,7 +182,11 @@ Next steps:
 - video upload on UI by drag drop or click button. To be integrated with backend. Might work on using NextJS on the UI. - Ryan
 
 **Week of 10/16/23 - 10/22/23: 5**
-- TBD
+- Database - Upload video to supabase and take 4 thumnails from video and upload to supabase @Matthew Weiner
+- backend - retrieve list of videos along with thumbnails and send to frontend @Apoorva Saraswat
+- frontend - use the response to show the list of videos along with thumbnails [use proxy response for now], create another page to play the video @Peter Tran
+- Audio model - Xingyu and Krisna working on getting the diarization model work with different speakers and their timestamps information
+- File upload - Ryan working on changing HTML frontend to NextJS
 
 **Week of 10/23/23 - 10/29/23: 6**
 - TBD

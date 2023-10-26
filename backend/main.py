@@ -27,7 +27,6 @@ app = FastAPI()
 
 origins = [
     "http://localhost:3000",
-    "*" #We may want to remove this in the future
 ]
 
 app.add_middleware(
@@ -84,9 +83,24 @@ async def upload_file(file: UploadFile):
     except Exception as e:
         return HTTPException(
             status_code=500,
-            detail=f"Failed to upload file {file.filename} to s3.\nError that occured: {str(e)}",
+            detail=f"Failed to upload file {file.filename} to s3.\nError that occurred: {str(e)}",
         )
-    return {"message": "File uploaded successfully","file-name": file.filename}
+    return {"message": "File uploaded successfully","data": data}
+
+
+@app.post("/fetchData")
+def fetch_data():
+    try:
+        raw_data = utils.get_data()
+        data = raw_data[1]
+
+    except Exception as e:
+        return HTTPException(
+            status_code=500,
+            detail=f"Failed to fetch data.\nError that occurred: {str(e)}",
+        )
+    return {"message": "Fetched data successfully","data": data}
+
 
 @app.post("/audio")
 def query(filename: str, local=True):
