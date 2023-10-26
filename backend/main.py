@@ -20,6 +20,7 @@ from gotrue.errors import AuthApiError
 
 # Start backend inside file
 import uvicorn
+from fastapi.middleware.cors import CORSMiddleware
 
 if __name__ == "__main__":
     uvicorn.run("main:app", reload=True)
@@ -28,6 +29,20 @@ if __name__ == "__main__":
 load_dotenv()
 
 app = FastAPI()
+
+
+origins = [
+    "http://localhost:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 app.mount("/static", StaticFiles(directory="../basic_frontend/src"), name="static")
 
@@ -119,17 +134,23 @@ def query(filename: str, local=True):
 
 @app.post("/diarize")
 def diarize(filename: str):
-    pipeline = Pipeline.from_pretrained(
+    filename = convert_to_wav(filename)
+    diarization_pipeline = Pipeline.from_pretrained(
         "pyannote/speaker-diarization-3.0",
         use_auth_token=os.getenv("HF_KEY"),
     )
+    outputs = diarization_pipeline(filename)
 
-    filename = convert_to_wav(filename)
-    # use pretrained pipeline
-    diarization = pipeline(filename)
+    starts = []
+    ends = []
+    speakers = []
 
-    rttm_content = diarization.to_rttm()
-    return {"rttm": rttm_content}
+    for turn, _, speaker in outputs.itertracks(yield_label=True):
+        starts.append(turn.start)
+        ends.append(turn.end)
+        speakers.append(speaker)
+
+    return [{"starts": starts}, {"ends": ends}, {"speakers": speakers}]
 
 
 @app.post("/transcribe")

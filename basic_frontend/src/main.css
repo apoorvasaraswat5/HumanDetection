@@ -1,11 +1,12 @@
 body{
-    width: 100%;
+    width: 96vw;
     height: 96vh;
+    display: grid;
+    grid-template-columns: 20% 80%;
 }
 
 #sidebar{
     background-color:gray;
-    width: 20%;
     height: 100%;
 }
 
