@@ -2,6 +2,7 @@ from typing import Union
 from fastapi import FastAPI, HTTPException, UploadFile, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv  # Corrected import statement
 import requests
@@ -23,6 +24,19 @@ if __name__ == '__main__':
 load_dotenv()
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:3000",
+    "*" #We may want to remove this in the future
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.mount("/static", StaticFiles(directory="../basic_frontend/src"), name="static")
 
@@ -61,7 +75,7 @@ async def logout(supabase = Depends(utils.get_supabase)):
     except AuthApiError as e:
         raise HTTPException(status_code=400,detail = str(e))
     
-@app.post("/upload/")
+@app.post("/upload")
 async def upload_file(file: UploadFile):
     try:
         raw_data = utils.upload_file(file)
@@ -72,7 +86,7 @@ async def upload_file(file: UploadFile):
             status_code=500,
             detail=f"Failed to upload file {file.filename} to s3.\nError that occured: {str(e)}",
         )
-    return {"message": "File uploaded successfully","data": data}
+    return {"message": "File uploaded successfully","file-name": file.filename}
 
 @app.post("/audio")
 def query(filename: str, local=True):
