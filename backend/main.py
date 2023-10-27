@@ -10,12 +10,13 @@ from dotenv import load_dotenv  # Corrected import statement
 import requests
 import utils
 import os
+import cv2
+import imutils
 from pyannote.audio import Pipeline
 from transformers import pipeline
-from speechbox import ASRDiarizationPipeline
-from datasets import load_dataset
+from gotrue.errors import AuthApiError
 from utils import convert_to_wav
-
+from whisper_diarization import whisper_diarization
 
 # Start backend inside file
 import uvicorn
@@ -195,30 +196,101 @@ def transcribe(filename: str):
 
 @app.post("/transcribe")
 def transcribe(filename: str):
-    # get pretrained diarization pipeline
-    diarization_pipeline = Pipeline.from_pretrained(
-        "pyannote/speaker-diarization-3.0",
-        use_auth_token=os.getenv("HF_KEY"),
+    return whisper_diarization(filename)
+
+
+@app.post("/video")
+def detect_person(local_file_path: str):
+    output_path = humanDetector(local_file_path)
+    print("local path: ", local_file_path)
+    return {"output_path": output_path}
+
+
+def detect(frame):
+    HOGCV = cv2.HOGDescriptor()
+    HOGCV.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
+    bounding_box_cordinates, weights = HOGCV.detectMultiScale(
+        frame, winStride=(4, 4), padding=(8, 8), scale=1.03
     )
 
-    # get pretrained asr pipeline
-    asr_pipeline = pipeline(
-        "automatic-speech-recognition",
-        model="openai/whisper-base",
+    person = 1
+    for x, y, w, h in bounding_box_cordinates:
+        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        cv2.putText(
+            frame,
+            f"person {person}",
+            (x, y),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            (0, 0, 255),
+            1,
+        )
+        person += 1
+
+    cv2.putText(
+        frame,
+        "Status : Detecting ",
+        (40, 40),
+        cv2.FONT_HERSHEY_DUPLEX,
+        0.8,
+        (255, 0, 0),
+        2,
+    )
+    cv2.putText(
+        frame,
+        f"Total Persons : {person-1}",
+        (40, 70),
+        cv2.FONT_HERSHEY_DUPLEX,
+        0.8,
+        (255, 0, 0),
+        2,
+    )
+    cv2.imshow("output", frame)
+
+    return frame
+
+
+def humanDetector(local_file_path):
+    # image_path = args["image"]
+    video_path = local_file_path
+    output_path = os.getcwd() + "\\..\\output\\output.mp4"
+    print("output: ", output_path)
+    writer = cv2.VideoWriter(
+        output_path, cv2.VideoWriter_fourcc(*"MJPG"), 10, (600, 600)
     )
 
-    # load dataset of concatenated LibriSpeech samples
-    concatenated_librispeech = load_dataset(
-        "sanchit-gandhi/concatenated_librispeech", split="train", streaming=True
-    )
-    # get first sample
-    sample = next(iter(concatenated_librispeech))
+    if video_path is not None:
+        print("[INFO] Opening Video from path.")
+        return detectByPathVideo(video_path, writer, output_path)
 
-    # get composite pipeline
-    comp_pipeline = ASRDiarizationPipeline(
-        asr_pipeline=asr_pipeline, diarization_pipeline=diarization_pipeline
-    )
 
-    output = comp_pipeline(sample["audio"])
+def detectByPathVideo(path, writer, output_path):
+    video = cv2.VideoCapture(path)
+    check, frame = video.read()
+    if not check:
+        print(
+            "Video Not Found. Please Enter a Valid Path (Full path of Video Should be Provided)."
+        )
+        print("path: ", path)
+        return
 
-    return output
+    print("Detecting people...")
+    while video.isOpened():
+        # check is True if reading was successful
+        check, frame = video.read()
+
+        if check:
+            frame = imutils.resize(frame, width=min(800, frame.shape[1]))
+            frame = detect(frame)
+
+            if writer is not None:
+                writer.write(frame)
+
+            key = cv2.waitKey(1)
+            if key == ord("q"):
+                break
+        else:
+            break
+    video.release()
+    cv2.destroyAllWindows()
+    return output_path
