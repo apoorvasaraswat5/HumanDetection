@@ -2,11 +2,13 @@ from typing import Union
 from fastapi import FastAPI, HTTPException, UploadFile, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv  # Corrected import statement
 import requests
 import utils
 import os
+import torch
 import cv2
 import imutils
 from pyannote.audio import Pipeline
@@ -17,7 +19,6 @@ from whisper_diarization import whisper_diarization
 
 # Start backend inside file
 import uvicorn
-from fastapi.middleware.cors import CORSMiddleware
 
 if __name__ == "__main__":
     uvicorn.run("main:app", reload=True)
@@ -26,7 +27,6 @@ if __name__ == "__main__":
 load_dotenv()
 
 app = FastAPI()
-
 
 origins = [
     "http://localhost:3000",
@@ -39,7 +39,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 app.mount("/static", StaticFiles(directory="../basic_frontend/src"), name="static")
 
@@ -97,9 +96,23 @@ async def upload_file(file: UploadFile):
     except Exception as e:
         return HTTPException(
             status_code=500,
-            detail=f"Failed to upload file {file.filename} to s3.\nError that occured: {str(e)}",
+            detail=f"Failed to upload file {file.filename} to s3.\nError that occurred: {str(e)}",
         )
     return {"message": "File uploaded successfully", "data": data}
+
+
+@app.get("/fetchData")
+def fetch_data():
+    try:
+        raw_data = utils.get_data()
+        data = raw_data[1]
+
+    except Exception as e:
+        return HTTPException(
+            status_code=500,
+            detail=f"Failed to fetch data.\nError that occurred: {str(e)}",
+        )
+    return {"message": "Fetched data successfully", "data": data}
 
 
 @app.post("/audio")
