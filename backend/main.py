@@ -84,10 +84,10 @@ async def logout(supabase=Depends(utils.get_supabase)):
         response = supabase.auth.sign_out()
         return {"message": "User signed out successfully"}
     except AuthApiError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=401, detail=str(e))
 
 
-@app.post("/upload/")
+@app.post("/upload")
 async def upload_file(file: UploadFile):
     try:
         raw_data = utils.upload_file(file)
