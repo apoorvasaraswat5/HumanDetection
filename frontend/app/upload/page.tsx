@@ -5,18 +5,33 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import style from 'app/upload/upload.module.css';
 import RecentUpload from "./components/RecentUpload";
 import { json } from "stream/consumers";
+import CurrentUpload from "./components/CurrentUpload";
+import FileUpload from "./components/FileUpload";
+
+interface Video {
+  name: string;
+  date: string;
+  size: number;
+}
+
+interface VideoUpload extends Video{
+  status: string;
+}
 
 export default function page() {
 
-  const [recentVideos, setRecentVideos] = useState([{"name":"","date":"","size":0}]);
+  const [recentVideos, setRecentVideos] = useState<Video[]>([]);
+  const [currentUpload, setCurrentUpload] = useState<VideoUpload[]>([]);
 
+  const fileUpload = new FileUpload(null);
 
   const getRecent = () => {
     let vals: any[] = []
-    let res = fetch('http://127.0.0.1:8000/fetchData', {
+    fetch('http://127.0.0.1:8000/fetchData', {
         method: 'GET'
-    }).then((res) => {
-      res.json().then((body) =>{
+    })
+    .then(res => res.json())
+    .then(body => {
         body.data.forEach((video: { filename: string; created_at: string }) => 
         {
           vals.push({
@@ -25,17 +40,18 @@ export default function page() {
             "size":0
           });
         });
+        setRecentVideos(() => vals);
+      })
+      .catch(rejected => {
+        console.log(rejected)
       });
-    });
     return vals;
   };
 
   useEffect(() => {
     const vals = getRecent();
-    setRecentVideos(() => vals);
   },[])
 
-  const sendFiles = (files: any) => {
     console.log(files)
     for(const file of files){
         var formData = new FormData();
@@ -74,6 +90,7 @@ export default function page() {
     }else if(target=='recent'){
       setUploadIsActive(current => false);
       setRecentIsActive(current => true);
+      getRecent();
     }else{
       console.log('TO BE IMPLEMENTED');
     }
@@ -108,7 +125,6 @@ export default function page() {
   const browseFiles = (event: any) => {
     console.log(inputFile)
     inputFile?.current.click();
-    console.log(inputFile)
   };
 
   const handleInput = (event: any) => {
@@ -136,20 +152,29 @@ export default function page() {
           null
         )}
         {uploadIsActive ? (
-          <div id={style.uploadarea}>
-              <div id={style.droparea} 
-              className={highlight ? style.highlight : ''}
-              onDragEnter={fileDragHighlight}
-              onDragLeave={fileDragUnHighlight}
-              onDrop={filesDropped}
-              onClick={browseFiles}>
-                <div className={style.dropform}>
-                  <input type="file" id={style.fileElem} ref={inputFile} accept="video/*" onChange={handleInput}/>
-                  <div className={style.prompttext}>
-                    Click to browse or drag and drop files
+          <div className="w-full">
+            <div id={style.uploadarea}>
+                <div id={style.droparea} 
+                className={highlight ? style.highlight : ''}
+                onDragEnter={fileDragHighlight}
+                onDragLeave={fileDragUnHighlight}
+                onDrop={filesDropped}
+                onClick={browseFiles}>
+                  <div className={style.dropform}>
+                    <input type="file" id={style.fileElem} ref={inputFile} multiple accept="video/*" onChange={handleInput}/>
+                    <div className={style.prompttext}>
+                      Click to browse or drag and drop files
+                    </div>
                   </div>
                 </div>
-              </div>
+            </div>
+            <div className="bg-black w-full">
+              {
+                currentUpload.map((video) => {
+                  return <CurrentUpload onClick={handleClick} fileName={video.name} size={video.size + ' GB'} date={video.date} key={video.name} status={video.status}/> 
+                })
+              }
+            </div>              
           </div>
         ) : ( 
           null
