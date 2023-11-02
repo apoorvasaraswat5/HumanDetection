@@ -1,6 +1,5 @@
 "use client"
 import Card from "@/components/Card";
-import Image from "@/components/Image";
 import TranscriptCard from "@/components/TranscriptCard";
 import { VideoArtifacts, getAllVideosResponse } from "@/utils/api";
 import { getAllVideos, getVideoArtifacts } from "@/utils/api-mocks";
