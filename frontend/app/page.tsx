@@ -1,7 +1,6 @@
 "use client"
 import Card from "@/components/Card";
-import VideoPage from "@/components/VideoPage";
-import VideoPreview from "@/components/VideoPreview";
+import TranscriptCard from "@/components/TranscriptCard";
 import { VideoArtifacts, getAllVideosResponse } from "@/utils/api";
 import { getAllVideos, getVideoArtifacts } from "@/utils/api-mocks";
 import { useEffect, useState } from "react";
