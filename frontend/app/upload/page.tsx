@@ -6,7 +6,8 @@ import style from 'app/upload/upload.module.css';
 import RecentUpload from "./components/RecentUpload";
 import { json } from "stream/consumers";
 import CurrentUpload from "./components/CurrentUpload";
-import FileUpload from "./components/FileUpload";
+import axios from "axios";
+import { stat } from "fs";
 
 interface Video {
   name: string;
@@ -21,9 +22,8 @@ interface VideoUpload extends Video{
 export default function page() {
 
   const [recentVideos, setRecentVideos] = useState<Video[]>([]);
-  const [currentUpload, setCurrentUpload] = useState<VideoUpload[]>([]);
-
-  const fileUpload = new FileUpload(null);
+  const [currentUpload, setCurrentUpload] = useState<VideoUpload>(null);
+  const [allUploads, setAllUploads] = useState<VideoUpload[]>([]);
 
   const getRecent = () => {
     let vals: any[] = []
@@ -52,30 +52,62 @@ export default function page() {
     const vals = getRecent();
   },[])
 
+  async function uploadFile(file:any) {
+    var formData = new FormData();
+    let status = '';
+    formData.append('file',file);
+    setCurrentUpload(() => {
+      return {
+        name: file.name,
+        date: file.lastModifiedDate.toUTCString(),
+        size: file.size,
+        status: "0%"
+      }
+    })
+    const res = await axios.post('http://127.0.0.1:8000/upload',formData, {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      },
+      onUploadProgress: progressEvent => {
+        setCurrentUpload((currUpload) => {
+          currUpload.status = (Math.floor((progressEvent.loaded/progressEvent.total)*100)-1).toString() + '%';
+          const newCurr = JSON.parse(JSON.stringify(currUpload))
+          console.log(progressEvent.loaded)
+          console.log(progressEvent.total)
+          return newCurr;
+        })
+      }
+    })
+    console.log(res)
+    if (res.data.status_code == 500){
+      status = 'Error!'
+      setCurrentUpload((currUpload) => {
+        currUpload.status = res.data.detail;
+        const newCurr = JSON.parse(JSON.stringify(currUpload))
+        return newCurr;
+      })      
+    } else {
+      status = '100%'
+      setCurrentUpload((currUpload) => {
+        currUpload.status = "100%";
+        const newCurr = JSON.parse(JSON.stringify(currUpload))
+        return newCurr;
+      })  
+    }
+    return {
+      name: file.name,
+      date: file.lastModifiedDate.toUTCString(),
+      size: file.size,
+      status: status
+    };
+  }
+
+  async function sendFiles(files: any){
     console.log(files)
     for(const file of files){
-        var formData = new FormData();
-        formData.append('file',file);
-        console.log('Starting ' + file.name)
-
-        let headers = new Headers();
-        headers.append('Content-Type', 'application/json');
-        headers.append('Accept', 'application/json');
-        headers.append('Origin','http://localhost:3000');
-
-        fetch('http://127.0.0.1:8000/upload', {
-            method: 'POST',
-            body: formData
-        }).then((res) => {
-            res.json().then(body => {
-              if(body?.status_code !== 200){
-                alert('Error ' +body?.status_code + ': ' + body?.detail)
-              }
-            })
-        }).catch((err) => {
-            alert('Error: ' + err)
-        })
-        console.log('End ' + file.name)
+        const curr = await uploadFile(file);
+        setAllUploads((temp) => JSON.parse(JSON.stringify([curr, ...temp])));
+        setCurrentUpload(() => null);
     }
   };
 
@@ -170,9 +202,16 @@ export default function page() {
             </div>
             <div className="bg-black w-full">
               {
-                currentUpload.map((video) => {
-                  return <CurrentUpload onClick={handleClick} fileName={video.name} size={video.size + ' GB'} date={video.date} key={video.name} status={video.status}/> 
-                })
+                currentUpload ? (
+                  <CurrentUpload onClick={handleClick} fileName={currentUpload.name} size={currentUpload.size + ' GB'} date={currentUpload.date} key={currentUpload.name} status={currentUpload.status}/>
+                ):(null)
+              }
+              {
+                allUploads ? (
+                  allUploads.map((video) => {
+                    return <CurrentUpload onClick={handleClick} fileName={video.name} size={video.size + ' GB'} date={video.date} key={video.name} status={video.status}/> 
+                  })
+                ):(null)
               }
             </div>              
           </div>
