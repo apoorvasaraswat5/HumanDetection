@@ -13,9 +13,9 @@ from gotrue.types import UserResponse
 
 load_dotenv()
 
-BUCKET_NAME = "human-detection-video-files"
+BUCKET_NAME = "human-detection-videos-files"
 
-TABLE_NAME = "video-files"
+TABLE_NAME = "videos-files"
 
 
 supabase = create_client(os.getenv('SUPABASE_URL'), os.getenv('SUPABASE_KEY'))
@@ -66,4 +66,21 @@ def get_keys_for_user(user_id):
 
 def get_data():
     data,count = supabase.table(TABLE_NAME).select('*').execute()
+    return data
+
+
+def upload_images(filepath):
+    uuid_val = uuid.uuid4()
+    filename = filepath.split("\\")[-1].rstrip(".jpg")
+
+    path_on_supastorage = f"images/{filename}_{uuid_val}"
+    user_data = supabase.auth.get_user()
+
+    #in the future throw auth error if user doesn't exist
+    user_id = 0
+    if user_data:
+        user_id = user_data.user.id
+
+    supabase.storage.from_(BUCKET_NAME).upload(path=path_on_supastorage,file=open(filepath, 'rb'),file_options={"content-type": "image/jpg"})
+    data,count = supabase.table(TABLE_NAME).insert({"filename": filename,"image_path": path_on_supastorage, "user_id": user_id}).execute()
     return data
