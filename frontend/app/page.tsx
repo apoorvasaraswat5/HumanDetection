@@ -1,93 +1,82 @@
 "use client"
 import Card from "@/components/Card";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/Dialog";
-import { useState } from "react";
+import Image from "@/components/Image";
+import TranscriptCard from "@/components/TranscriptCard";
+import { VideoArtifacts, getAllVideosResponse } from "@/utils/api";
+import { getAllVideos, getVideoArtifacts } from "@/utils/api-mocks";
+import { useEffect, useState } from "react";
 export default function Home() {
-  const [Videos, setVideos] = useState([
-    "Video1.mp4",
-    "Video2.mp4",
-    "Video3.mp4",
-    "Video4.mp4",
-    "Video5.mp4",
-    "Video6.mp4",
-    "Video7.mp4",
-  ]);
-  const images = [
-    "https://i.imgur.com/XgbZdeA.jpeg",
-    "https://i.imgur.com/3FVUanX.jpeg",
-  ];
-  const [imgIndex, setImgIndex] = useState(0);
-  const [open, setOpen] = useState(false);
-  const onClick = () => {
-    setImgIndex((imgIndex + 1) % images.length);
+  const [Videos, setVideos] = useState<getAllVideosResponse>([] as any);
+  const [currentVideo, setcurrentVideo] = useState('');
+  const [currentVideoArtifacts, setcurrentVideoArtifacts] = useState<VideoArtifacts>({} as any)
+  const onSidebarClick = (currentVideo: string) => (e: any) => {
+    e.stopPropagation();
+    setcurrentVideo(currentVideo);
   };
-  const openAudio = () => {
-    console.log(`open:`);
-    setOpen(!open);
-  }
+  useEffect(() => {
+    const fetchVideos = async () => {
+      const res: any =  await getAllVideos();
+      setVideos(res);
+    }
+    fetchVideos();
+  },[])
+  useEffect(() => {
+    const fetchVideoArtifacts = async () => {
+      const res: any = await getVideoArtifacts(currentVideo);
+      setcurrentVideoArtifacts(res);
+    }
+    fetchVideoArtifacts();
+  },[Videos, currentVideo])
+
   return (
     <div className="main-content flex h-screen">
-      <div className=" sidebar w-1/4 space-y-3 bg-gray-300 overflow-scroll">
+      <div className="sidebar w-1/4 space-y-3 bg-gray-300 overflow-scroll">
         {Videos.map((video) => {
-          return <Card onClick={onClick} fileName={video} key={video} size="100MB"/>;
+          return <Card onClick={onSidebarClick(video.id)} fileName={video.title} key={video.id} size={video.size}/>;
         })}
       </div>
-      <div className="content w-3/4 flex flex-col p-2">
+      <div className="content w-3/4 flex flex-col p-2 bg-white">
         <h2 className="text-2xl font-bold tracking-tight text-gray-900">
           Images
         </h2>
         <div className="flex flex-row p-5 space-x-5">
-          {Array(4)
-            .fill(0)
-            .map((_, index) => {
-              return (
-                <img
-                  className="h-[200px] w-[250px] max-w-lg rounded-lg"
-                  alt=""
-                  src={images[imgIndex]}
-                  key={index}
-                />
-              );
-            })}
+          {
+            currentVideoArtifacts.peopleDetectedFrames?.map((frame) => {
+              return <img
+              className="h-[200px] w-[250px] max-w-lg rounded-lg"
+              alt=""
+              src={frame.thumbnail}
+              key={frame.thumbnail}
+            />
+            })
+          }
         </div>
         <h2 className="text-2xl font-bold tracking-tight text-gray-900">
           Audio
         </h2>
         <div className="flex flex-row p-5 space-x-5">
-          {Array(4)
-            .fill(0)
-            .map((_, index) => {
-              return (
-                <img
-                  onClick={openAudio}
-                  className="h-[200px] w-[250px] max-w-lg rounded-lg"
-                  alt=""
-                  src={images[imgIndex]}
-                  key={index}
-                />
-              );
-            })}
+          {
+            currentVideoArtifacts.voiceDetectedFrames?.map((frame) => {
+              return <TranscriptCard content={frame.transcript} key={frame.timestamp}/>
+            })
+          }
         </div>
         <h2 className="text-2xl font-bold tracking-tight text-gray-900">
           People
         </h2>
         <div className="flex flex-row p-5 space-x-5">
-          {Array(4).fill(0).map((_, index) => {
-            return (
-              <img
-            className="h-[200px] w-[200px] max-w-lg rounded-full"
-            alt=""
-            src={images[imgIndex]}
-            key={index}
-          />
-            )
-          })}
+          {
+            currentVideoArtifacts.distinctPeopleDetected?.map((person) => {
+              return <img
+              className="h-[200px] w-[250px] max-w-lg rounded-lg"
+              alt=""
+              src={person.thumbnail}
+              key={person.thumbnail}
+              />
+            })
+          }
         </div>
       </div>
-      {/* <Dialog>
-    <DialogTrigger>Dialog trigger</DialogTrigger>
-    <DialogContent>Dialog Content</DialogContent>
-  </Dialog> */}
     </div>
   );
 }

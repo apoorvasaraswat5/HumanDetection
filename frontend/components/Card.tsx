@@ -24,6 +24,9 @@ export default function Card({
       <div className="filesize border-2 p-2 ml-auto group-hover:border-black">
         {size}
       </div>
+      <a href="/video">
+        Play
+      </a>
     </button>
   );
 }
