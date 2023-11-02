@@ -2,7 +2,6 @@ from pyannote.audio import Pipeline
 from pydub import AudioSegment
 from pydub.playback import play
 from transformers import pipeline
-from utils import convert_to_wav
 import os
 import numpy as np
 
@@ -26,8 +25,6 @@ def extract_audio_segment(input_file, start_time, end_time):
 
 
 def whisper_diarization(filename: str):
-    filename = convert_to_wav(filename)
-
     diarization_pipeline = Pipeline.from_pretrained(
         "pyannote/speaker-diarization-3.0",
         use_auth_token=os.getenv("HF_KEY"),
@@ -46,10 +43,10 @@ def whisper_diarization(filename: str):
         # get segment based on turn.start and turn.end from the original file
         segment = extract_audio_segment(filename, turn.start, turn.end)
         text = asr_pipeline(segment)["text"]
-        print(
-            f"{speaker} {np.round(turn.start, 2)}:{np.round(turn.end, 2)}",
-            text,
-        )
+        # print(
+        #    f"{speaker} {np.round(turn.start, 2)}:{np.round(turn.end, 2)}",
+        #    text,
+        # )
 
         res.append([turn.start, turn.end, speaker, text])
     # delete temp files
