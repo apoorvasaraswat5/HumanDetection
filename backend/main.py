@@ -15,8 +15,9 @@ import imutils
 from pyannote.audio import Pipeline
 from transformers import pipeline
 from gotrue.errors import AuthApiError
-from utils import convert_to_wav
-from whisper_diarization import whisper_diarization
+from transformers import AutoFeatureExtractor, AutoModelForObjectDetection
+from transformers import pipeline
+from PIL import Image
 
 # Start backend inside file
 import uvicorn
@@ -194,17 +195,89 @@ def transcribe(filename: str):
     return whisper_diarization(filename)
 
 
-
-@app.post("/transcribe")
-def transcribe(filename: str):
-    return whisper_diarization(filename)
-
-
-@app.post("/video")
+@app.post("/videos")
 def detect_person(local_file_path: str):
-    output_path = humanDetector(local_file_path)
+    # output_path, images_path = face_detection(local_file_path)
+    output_path = "C:\\Users\\apoor\\Downloads\\output_video.mp4"
+    images_path = "C:\\Users\\apoor\\Downloads\\unique_face_1.jpg"
+    raw_data = utils.upload_images(images_path)
+    data = raw_data[1][0]
     print("local path: ", local_file_path)
-    return {"output_path": output_path}
+    return {"video_path": data}
+
+
+def face_detection(local_file_path):
+    # Initialize the object detection model (change the model name)
+    model_name = "facebook/detr-resnet-50"
+    feature_extractor = AutoFeatureExtractor.from_pretrained(model_name)
+    model = AutoModelForObjectDetection.from_pretrained(model_name)
+
+    object_detection = pipeline("object-detection", model=model, feature_extractor=feature_extractor)
+
+    # Initialize the face detection model (use your own pre-trained model)
+    face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+    cap = cv2.VideoCapture(local_file_path)
+
+    # Initialize variables for face tracking
+    faces = []
+    face_id = 0
+
+    # Create a VideoWriter object to save the output videos
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    output_path = os.path.join(os.getcwd() + "\\..\\output\\videos\\output_video.mp4")
+    images_path = os.path.join(os.getcwd() + "\\..\\output\\images")
+    output_video = cv2.VideoWriter(output_path, fourcc, 20.0, (640, 480))
+
+    while cap.isOpened():
+        ret, frame = cap.read()
+
+        if not ret:
+            break
+
+        # Resize the frame for faster processing
+        frame = cv2.resize(frame, (640, 480))
+        color_converted = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        pil_image = Image.fromarray(color_converted)
+
+        # Detect objects in the frame using the object detection model
+        results = object_detection(pil_image)
+
+        # Extract human objects from detected objects
+        humans = [obj for obj in results if obj['label'] == 'person']
+        print("human detected")
+        for human in humans:
+            x1, y1, x2, y2 = human['box'].values()
+            # Draw a rectangle around the detected human
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+
+            # Extract the human face from the region
+            face = frame[y1:y2, x1:x2]
+            face = cv2.resize(face, (640, 480))
+
+            is_unique = True
+            for existing_face in faces:
+                print("checking face similarity..")
+                similarity = cv2.matchTemplate(face, existing_face, cv2.TM_CCOEFF_NORMED)
+                if similarity.max(initial=None) > 0.25:  # Adjust the threshold as needed
+                    print("not unique")
+                    is_unique = False
+                    break
+            # Check if the face is unique by comparing with previously detected faces
+
+            if is_unique:
+                print("unique")
+                faces.append(face)
+                face_id += 1
+                cv2.imwrite(os.path.join(images_path, f"unique_face_{face_id}.jpg"), face)
+
+        print("writing frame")
+        # Write the frame to the output videos
+        output_video.write(frame)
+
+    cap.release()
+    output_video.release()
+    cv2.destroyAllWindows()
+    return output_path, images_path
 
 
 def detect(frame):
