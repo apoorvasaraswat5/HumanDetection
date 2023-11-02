@@ -23,7 +23,7 @@ interface VideoUpload extends Video{
 export default function page() {
 
   const [recentVideos, setRecentVideos] = useState<Video[]>([]);
-  const [currentUpload, setCurrentUpload] = useState<VideoUpload>(null);
+  const [currentUpload, setCurrentUpload] = useState<VideoUpload | null>(null);
   const [allUploads, setAllUploads] = useState<VideoUpload[]>([]);
 
   const getRecent = () => {
@@ -75,9 +75,13 @@ export default function page() {
       onUploadProgress: progressEvent => {
         setCurrentUpload((currUpload) => {
           if(progressEvent.total){
-            currUpload.status = (Math.floor((progressEvent.loaded/progressEvent.total)*100)-1).toString() + '%';
+            if(currUpload){
+              currUpload.status = (Math.floor((progressEvent.loaded/progressEvent.total)*100)-1).toString() + '%';
+            }
           } else {
-            currUpload.status = 'UNK';
+            if(currUpload){
+              currUpload.status = 'UNK';
+            }
           }
           const newCurr = JSON.parse(JSON.stringify(currUpload))
           console.log(progressEvent.loaded)
@@ -90,14 +94,18 @@ export default function page() {
     if (res.data.status_code == 500){
       status = 'Error!'
       setCurrentUpload((currUpload) => {
-        currUpload.status = res.data.detail;
+        if(currUpload){
+          currUpload.status = res.data.detail;
+        }
         const newCurr = JSON.parse(JSON.stringify(currUpload))
         return newCurr;
       })      
     } else {
       status = '100%'
       setCurrentUpload((currUpload) => {
-        currUpload.status = "100%";
+        if(currUpload){
+          currUpload.status = "100%";
+        }
         const newCurr = JSON.parse(JSON.stringify(currUpload))
         return newCurr;
       })  
