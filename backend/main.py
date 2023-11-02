@@ -1,5 +1,7 @@
+import shutil
+import tempfile
 from typing import Union
-from fastapi import FastAPI, HTTPException, UploadFile, Depends
+from fastapi import FastAPI, HTTPException, UploadFile, Depends, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -89,9 +91,9 @@ async def upload_file(file: UploadFile):
 
 
 @app.get("/fetchData")
-def fetch_data():
+def fetch_data(user_id=0):
     try:
-        raw_data = utils.get_data()
+        raw_data = utils.get_data(user_id)
         data = raw_data[1]
 
     except Exception as e:
@@ -100,6 +102,16 @@ def fetch_data():
             detail=f"Failed to fetch data.\nError that occurred: {str(e)}",
         )
     return {"message": "Fetched data successfully","data": data}
+
+@app.get("/download")
+def download_file(file_path):
+    
+    content_types = {"videos": "video/mp4", "thumbnails": "image/x-png"}
+   
+    file = utils.download_file_by_path(file_path)
+    key = file_path.split("/")[0]
+    content_type = content_types[key]
+    return Response(file,media_type=content_type)
 
 
 @app.post("/audio")
