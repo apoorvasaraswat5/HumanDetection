@@ -74,10 +74,10 @@ def create_thumbnail(file):
             thumbnail_buffer.seek(0)
         os.remove(temp_file_path)
         return thumbnail_buffer.getvalue()
+            
+def download_file_by_path(file_path):
+    return supabase.storage.from_(BUCKET_NAME).download(file_path)
 
-
-def download_file_by_key(s3_key):
-    return supabase.storage.from_(BUCKET_NAME).download(s3_key)
 
 
 def get_keys_for_user(user_id):
@@ -87,8 +87,9 @@ def get_keys_for_user(user_id):
     return data
 
 
-def get_data():
-    data, count = supabase.table(TABLE_NAME).select("*").execute()
+
+def get_data(user_id):
+    data,count = supabase.table(TABLE_NAME).select('*').eq("user_id",user_id).execute()
     return data
 
 
