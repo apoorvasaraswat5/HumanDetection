@@ -13,6 +13,7 @@ interface Video {
   name: string;
   date: string;
   size: number;
+  thumbnail_path: string;
 }
 
 interface VideoUpload extends Video{
@@ -27,17 +28,19 @@ export default function page() {
 
   const getRecent = () => {
     let vals: any[] = []
-    fetch('http://127.0.0.1:8000/fetchData', {
+    const user_id = '0'
+    fetch('http://127.0.0.1:8000/fetchData?user_id=' + user_id, {
         method: 'GET'
     })
     .then(res => res.json())
     .then(body => {
-        body.data.forEach((video: { filename: string; created_at: string }) => 
+        body.data.forEach((video: { filename: string; created_at: string, user_id: number, thumbnail_path: string }) => 
         {
           vals.push({
             "name":video.filename,
             "date":video.created_at,
-            "size":0
+            "size":0,
+            "thumbnail_path":video.thumbnail_path
           });
         });
         setRecentVideos(() => vals);
@@ -61,7 +64,8 @@ export default function page() {
         name: file.name,
         date: file.lastModifiedDate.toUTCString(),
         size: file.size,
-        status: "0%"
+        status: "0%",
+        thumbnail_path: ""
       }
     })
     const res = await axios.post('http://127.0.0.1:8000/upload',formData, {
@@ -70,7 +74,11 @@ export default function page() {
       },
       onUploadProgress: progressEvent => {
         setCurrentUpload((currUpload) => {
-          currUpload.status = (Math.floor((progressEvent.loaded/progressEvent.total)*100)-1).toString() + '%';
+          if(progressEvent.total){
+            currUpload.status = (Math.floor((progressEvent.loaded/progressEvent.total)*100)-1).toString() + '%';
+          } else {
+            currUpload.status = 'UNK';
+          }
           const newCurr = JSON.parse(JSON.stringify(currUpload))
           console.log(progressEvent.loaded)
           console.log(progressEvent.total)
@@ -153,10 +161,11 @@ export default function page() {
     }
   }
 
-  const inputFile = useRef(null);
+  const inputFile = useRef<any>();
   const browseFiles = (event: any) => {
-    console.log(inputFile)
-    inputFile?.current.click();
+    if(inputFile.current){
+      inputFile.current.click();
+    }
   };
 
   const handleInput = (event: any) => {
@@ -176,7 +185,7 @@ export default function page() {
                 recentVideos.sort((a,b) =>{
                   return new Date(b.date).getTime() - new Date(a.date).getTime();
                 }).map((video) => {
-                  return <RecentUpload onClick={handleClick} fileName={video.name} size={video.size + ' GB'} date={video.date} key={video.name}/>;
+                  return <RecentUpload onClick={handleClick} fileName={video.name} size={video.size + ' GB'} date={video.date} key={video.name} thumbnail={video.thumbnail_path}/>;
                 })
               }
           </div>
