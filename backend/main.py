@@ -153,6 +153,19 @@ def query(filename: str, local=True):
                 detail=f"Failed to connect to huggingface inference API: {e}",
             )
 
+@app.post("/process")
+def process_video(file_path):
+    video = utils.download_file_by_path(file_path)
+    temp_wav_path = utils.extract_audio(video)
+
+    video_results = None
+    audio_results = whisper_diarization(temp_wav_path)
+    
+    os.remove(temp_wav_path)
+    
+    return {"audio": audio_results, "video": video_results}
+    
+    
 
 @app.post("/diarize")
 def diarize(filename: str):
@@ -173,6 +186,7 @@ def diarize(filename: str):
         speakers.append(speaker)
 
     return [{"starts": starts}, {"ends": ends}, {"speakers": speakers}]
+
 
 
 @app.post("/transcribe")

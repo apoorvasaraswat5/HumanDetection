@@ -60,6 +60,27 @@ def upload_file(file):
     )
     return data
 
+def extract_audio(video):
+    temp_video = tempfile.NamedTemporaryFile(suffix=".mp4", delete=False)
+    temp_video.write(video)
+    temp_video_path = temp_video.name
+    temp_video.close()
+    
+    video_clip = VideoFileClip(temp_video_path)
+    audio_clip = video_clip.audio
+    
+    temp_wav = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
+    temp_wav_path = temp_wav.name
+   
+    audio_clip.write_audiofile(temp_wav_path)
+    temp_wav.close()
+
+    
+    video_clip.close()
+    audio_clip.close()
+    
+    os.remove(temp_video_path)
+    return temp_wav_path
 
 def create_thumbnail(file):
     temp_file_path = tempfile.NamedTemporaryFile(delete=False).name
