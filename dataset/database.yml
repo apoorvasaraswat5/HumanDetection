@@ -1,0 +1,10 @@
+Protocols:
+  MyDatabase:
+    Protocol:
+      MyProtocol:
+        train:
+            uri: /path/to/train.lst
+        development:
+            uri: /path/to/development.lst
+        test:
+            uri: /path/to/test.lst

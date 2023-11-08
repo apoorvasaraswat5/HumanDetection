@@ -24,7 +24,7 @@ def extract_audio_segment(input_file, start_time, end_time):
     return output_file
 
 
-def whisper_diarization(filename: str):
+def whisper_diarization(filename: str, testing: bool = False):
     diarization_pipeline = Pipeline.from_pretrained(
         "pyannote/speaker-diarization-3.0",
         use_auth_token=os.getenv("HF_KEY"),
@@ -47,8 +47,11 @@ def whisper_diarization(filename: str):
         #    f"{speaker} {np.round(turn.start, 2)}:{np.round(turn.end, 2)}",
         #    text,
         # )
-
-        res.append([turn.start, turn.end, speaker, text])
+        if testing:
+            speaker = speaker[8:] if speaker[8] != "0" else speaker[9:]
+            res.append((speaker, np.round(turn.start, 4), np.round(turn.end, 4)))
+        else:
+            res.append([turn.start, turn.end, speaker, text])
     # delete temp files
     for f in os.listdir("temp"):
         os.remove(os.path.join("temp", f))

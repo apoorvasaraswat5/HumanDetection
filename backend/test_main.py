@@ -1,9 +1,11 @@
-#import sklearn  # put in requirements.txt
 import sys
-#import simpleder  # put in reqruirements.txt
+from pyannote.metrics.diarization import DiarizationErrorRate
+from pyannote.database import get_protocol, FileFinder
+from pyannote.core import Annotation
+import simpleder  # include in requirements.txt
 import os
 
-#from whisper_diarization import whisper_diarization
+# from whisper_diarization import whisper_diarization
 
 
 def test_audio():
@@ -11,14 +13,15 @@ def test_audio():
     Evaluate the whisper_diarization pipeline according to de facto diarization metrics
         reference - the ground truth
         hypothesis - the predicted results from our pipeline
+        DER - diarization error rate
     """
     # define folder paths
     reference_folder = "HumanDetection/dataset/references"
     audio_folder = "HumanDetection/dataset/audio_files"
 
     # get reference and audio files (unsure if this always works)
-    references = sorted([file for file in os.listdir(reference_folder)])
-    audio_files = sorted([file for file in os.listdir(audio_folder)])
+    references = [file for file in os.listdir(reference_folder)]
+    audio_files = [file for file in os.listdir(audio_folder)]
 
     for reference, audio_file in zip(references, audio_files):
         # construct file paths
@@ -26,12 +29,18 @@ def test_audio():
         audio_path = os.path.join(audio_folder, audio_file)
 
         # feed audio into pipeline
-        #res = whisper_diarization(audio_path)
+        # hyp = whisper_diarization(audio_path, testing=True)
 
-        # get cleaned up reference
-        clean_rttm(reference_path)
+        # clean up reference and hypothesis
+        ref = clean_rttm(reference_path)
 
-        
+        # calculate DER
+        # error = simpleder.DER(ref, hyp)
+        # print(f"DER = {round(error, ndigits=4)} for {audio_file}")
+
+        metric = DiarizationErrorRate()
+
+        # value = metric(ref, hyp)
 
 
 def clean_rttm(reference_path):
@@ -42,25 +51,32 @@ def clean_rttm(reference_path):
             (speaker id, time start, time end)
     """
     res = []
-    running_time = 0.00 # keep track of time from 0.00
+    running_time = 0.00  # keep track of time from 0.00
+    ann = Annotation(modality="speaker")
     with open(reference_path, "r") as ref:
         for line in ref:
             temp = []
             clean_line = line.split()
             # get rid of irrelevant fields
             # see https://stackoverflow.com/a/74358577 for more about rttm
-            for i, elem in enumerate(clean_line):
-                # get timestamps
-                if i in [3, 4]:
-                    temp.append(float(elem))
-                # get speaker id in correct format
-                if i == 7:
-                    temp.append(elem[3:] if elem[3] != "0" else elem[4:])
-            temp = temp[::-1]
+            onset = float(clean_line[3])
+            duration = float(clean_line[4])
+            id = clean_line[7]
+            temp.append(round(onset + duration, ndigits=4))  # end time
+            temp.append(round(onset, ndigits=4))  # start time
 
-            print(temp)
+            # clean speaker id tag
+            temp.append(id[3:] if id[3] != "0" else id[4:])
+            temp = tuple(temp[::-1])
+            res.append(temp)
 
-            
+            ann[]
+
+    return res
+
+
+""" def test_database(): """
+
 
 def main():
     test_audio()
