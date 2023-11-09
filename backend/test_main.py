@@ -2,7 +2,6 @@ import sys
 from pyannote.metrics.diarization import DiarizationErrorRate
 from pyannote.database import get_protocol, FileFinder
 from pyannote.core import Annotation, Segment
-import simpleder  # include in requirements.txt
 import os
 from whisper_diarization import whisper_diarization
 
