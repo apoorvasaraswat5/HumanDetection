@@ -3,19 +3,15 @@ from fastapi import FastAPI, HTTPException, UploadFile, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 from dotenv import load_dotenv  # Corrected import statement
-import requests
 import utils
 import os
-import torch
 import cv2
 import imutils
-from pyannote.audio import Pipeline
-from transformers import pipeline
 from gotrue.errors import AuthApiError
 from utils import convert_to_wav
 from whisper_diarization import whisper_diarization
+from routers import audio
 
 # Start backend inside file
 import uvicorn
@@ -27,6 +23,8 @@ if __name__ == "__main__":
 load_dotenv()
 
 app = FastAPI()
+app.include_router(audio.router, prefix="/audio")
+
 
 origins = [
     "http://localhost:3000",
@@ -113,59 +111,6 @@ def fetch_data():
             detail=f"Failed to fetch data.\nError that occurred: {str(e)}",
         )
     return {"message": "Fetched data successfully", "data": data}
-
-
-@app.post("/audio")
-def query(filename: str, local=True):
-    if local:
-        # use speech pipeline hosted locally
-        with open(filename, "rb") as f:
-            data = f.read()
-        pipe = pipeline("automatic-speech-recognition", model="openai/whisper-small")
-        res = pipe(data)
-        return res
-    else:
-        API_URL = "https://api-inference.huggingface.co/models/openai/whisper-small"
-        headers = {"Authorization": "Bearer " + os.getenv("HF_KEY")}
-
-        try:
-            with open(filename, "rb") as f:
-                data = f.read()
-            response = requests.post(API_URL, headers=headers, data=data)
-            response.raise_for_status()
-            return response.json()
-
-        except requests.exceptions.RequestException as e:
-            return HTTPException(
-                status_code=500,
-                detail=f"Failed to connect to huggingface inference API: {e}",
-            )
-
-
-@app.post("/diarize")
-def diarize(filename: str):
-    filename = convert_to_wav(filename)
-    diarization_pipeline = Pipeline.from_pretrained(
-        "pyannote/speaker-diarization-3.0",
-        use_auth_token=os.getenv("HF_KEY"),
-    )
-    outputs = diarization_pipeline(filename)
-
-    starts = []
-    ends = []
-    speakers = []
-
-    for turn, _, speaker in outputs.itertracks(yield_label=True):
-        starts.append(turn.start)
-        ends.append(turn.end)
-        speakers.append(speaker)
-
-    return [{"starts": starts}, {"ends": ends}, {"speakers": speakers}]
-
-
-@app.post("/transcribe")
-def transcribe(filename: str):
-    return whisper_diarization(filename)
 
 
 @app.post("/video")
