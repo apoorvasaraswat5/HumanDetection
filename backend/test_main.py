@@ -1,9 +1,11 @@
 import sys
-from pyannote.metrics.diarization import DiarizationErrorRate
-from pyannote.database import get_protocol, FileFinder
+#from pyannote.metrics.diarization import DiarizationErrorRate
+#from pyannote.database import get_protocol, FileFinder
 from pyannote.core import Annotation, Segment
 import os
-from whisper_diarization import whisper_diarization
+import csv
+import pandas as pd # include in requirements.txt
+#from whisper_diarization import whisper_diarization
 
 
 def test_audio():
@@ -18,8 +20,8 @@ def test_audio():
     audio_folder = "HumanDetection/dataset/audio_files"
 
     # get reference and audio files (unsure if this always works)
-    references = [file for file in os.listdir(reference_folder)]
-    audio_files = [file for file in os.listdir(audio_folder)]
+    references = sorted([file for file in os.listdir(reference_folder)])
+    audio_files = sorted([file for file in os.listdir(audio_folder)])
 
     for reference, audio_file in zip(references, audio_files):
         # construct file paths
@@ -51,26 +53,38 @@ def rttm_to_annotation(file, filename):
     """
     annotation = Annotation(modality="speaker")
     for line in file:
-        temp = []
         clean_line = line.split()
         # get rid of irrelevant fields
         # see https://stackoverflow.com/a/74358577 for more about rttm
         onset = float(clean_line[3])
         duration = float(clean_line[4])
         id = clean_line[7]
-        temp.append(round(onset + duration, ndigits=4))  # end time
-        temp.append(round(onset, ndigits=4))  # start time
-        # clean speaker id tag
-        temp.append(id[3:] if id[3] != "0" else id[4:])
-        temp = tuple(temp[::-1])
+        # add Segment to Annotation
         annotation[Segment(onset, duration + onset), filename] = id
-
     return annotation
 
 
 def main():
-    test_audio()
+    #test_audio()
+    visualize_output("aepyx")
 
+def visualize_output(filename: str):
+    """
+    Given a specific file, generate visual examples of performance
+    Output is in a file in datasets/outputs/{filename}.txt
+    Args:
+        filename - string of the name of the file, no extensions
+    """
+    # get hypothesis + annotation
+    audio_file = "HumanDetection/dataset/audio_files/" + filename + '.wav'
+    #hyp = whisper_diarization(audio_file)
+
+    # get annotation
+    with open("HumanDetection/dataset/annotations/" + filename + '.csv', 'r', newline="") as csvfile:
+        # convert to dataframe for comaparison
+        ref = pd.read_csv(csvfile)
+        print(ref)
+        
 
 if __name__ == "__main__":
     main()

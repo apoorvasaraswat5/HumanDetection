@@ -3,6 +3,8 @@ Citation is below.
 
 Before uploading audio files, make sure that there exists a corresponding reference file in /references.
 (i.e. if your audio file is named "sample1.wav" located in /audio_files, there is a reference file in /references named "sample1.rttm")
+Annotations are expected to be stored as .csv files, where the attributes are, in order:
+start_time,end_time,speaker,text
 
 #TODO Add instructions for uploading video files
 
