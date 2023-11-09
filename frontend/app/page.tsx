@@ -42,7 +42,7 @@ export default function Home() {
       </div>
       <div className="content w-3/4 flex flex-col p-2 bg-white">
       {
-        isPlaying ? <VideoPage src={currentVideoArtifacts.videoURL}/> :
+        isPlaying ? <VideoPage src={currentVideoArtifacts.videoURL} VideoArtifacts={currentVideoArtifacts}/> :
         <VideoPreview currentVideoArtifacts={currentVideoArtifacts}/>
       }
       </div>
