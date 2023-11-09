@@ -1,0 +1,13 @@
+start_time,end_time,speaker,text,Hypothesis_start_time,Hypothesis_end_time,Hypothesis_speaker,Hypothesis_text
+0.497,1.344,SPEAKER_01,Hi how are you?,0.46689,1.33277,SPEAKER_01," Hi, how are you?"
+1.863,2.56,SPEAKER_00,I'm good how are you?,1.82513,2.58913,SPEAKER_00," I'm good, how are you?"
+3.07,5.16,SPEAKER_01,Good. So what did you have for breakfast today?,3.03056,5.18676,SPEAKER_01," Good, so what do you have for breakfast today?"
+5.555,7.24,SPEAKER_00,I had an omelette. What did you have?,5.52632,7.27504,SPEAKER_00, I had an omelet. What did you have?
+7.605,10.62,SPEAKER_01,I have an omelette as well. So what did you get in your omelette?,7.58065,10.65365,SPEAKER_01, I have an omelet as well. So what did you get in your omelet?
+11.325,15.04,SPEAKER_00,"I got spinach, tomatoes, mushrooms, and sausage.",11.28183,15.10187,SPEAKER_00," I got spinach, tomatoes, mushrooms and sausage."
+15.506,18.36,SPEAKER_01,Sounds like a great combinations. Did you have any coffee?,15.49236,18.37861,SPEAKER_01, Sounds like a great combination. Did you have any coffee?
+18.8,21.74,SPEAKER_00,Yes I had a lot of coffee. Did you have any coffee?,18.75212,21.77419,SPEAKER_00," Yes, I had a lot of coffee. Did you have any coffee?"
+21.935,22.54,SPEAKER_01,Yes I did.,21.89304,22.55518,SPEAKER_01," Yes, I did."
+23.275,25.076,SPEAKER_00,Nice. Do you feel like pooping now?,23.25127,25.10187,SPEAKER_00, Nice. Do you feel like pooping now?
+22.495,25.975,SPEAKER_01,Perhaps.,25.47538,26.01868,SPEAKER_01, perhaps.
+26.338,26.531,SPEAKER_00,Good,26.27334,26.59593,SPEAKER_00, Good.

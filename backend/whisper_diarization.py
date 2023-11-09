@@ -49,12 +49,19 @@ def whisper_diarization(filename: str, testing: bool = False):
         # get segment based on turn.start and turn.end from the original file
         segment = extract_audio_segment(filename, turn.start, turn.end)
         text = asr_pipeline(segment)["text"]
-        print(
-            f"{speaker} {np.round(turn.start, 2)}:{np.round(turn.end, 2)}",
-            text,
-        )
+        # print(
+        #    f"{speaker} {np.round(turn.start, 2)}:{np.round(turn.end, 2)}",
+        #    text,
+        # )
 
-        res.append([turn.start, turn.end, speaker, text])
+        res.append(
+            [
+                np.round(turn.start, decimals=5),
+                np.round(turn.end, decimals=5),
+                speaker,
+                text,
+            ]
+        )
     # delete temp files
     for f in os.listdir("temp"):
         os.remove(os.path.join("temp", f))

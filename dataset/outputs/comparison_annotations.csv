@@ -1,0 +1,40 @@
+start_time,end_time,speaker,text,Hypothesis_start_time,Hypothesis_end_time,Hypothesis_speaker,Hypothesis_text
+2.5,6.16,SPEAKER_00,Donald Trump and Sarah Palin with an encore performance today.,0.008488964346349746,0.534804753820034,SPEAKER_03, Thank you.
+6.2,11.54,SPEAKER_01,"Everybody wanted her endorsement. She said what you're doing, Donald, is amazing.",0.534804753820034,0.5687606112054331,SPEAKER_00, you
+11.68,14.62,SPEAKER_00,The duo heading the campaign trail together in Oklahoma.,2.402376910016978,2.4193548387096775,SPEAKER_00, you
+14.96,18.4,SPEAKER_01,"We have a movement going on folks, we have a movement.",2.4193548387096775,6.086587436332767,SPEAKER_03, Donald Trump and Sarah Palin with an encore performance today.
+19.09,25.44,SPEAKER_01,"This is not, this is not a normal situation. People are sick and tired and fed up and yes, we're angry",6.086587436332767,18.548387096774192,SPEAKER_00, Everybody wanted her endorsement. She said what you're doing Donald is amazing. The duo hitting the campaign trail together in Oklahoma. We have a movement going on folks. We have a movement. This is not
+26.13,27.19,SPEAKER_01,We are angry.,18.887945670628184,25.764006791171475,SPEAKER_00," This is not a normal situation. People are sick and tired and fed up and yes, we're angry."
+28.32,32.56,SPEAKER_00,"Rallying supporters at the conservative Christian university, Oral Roberts.",25.967741935483872,27.13921901528014,SPEAKER_00, We are angry.
+32.5,33.48,SPEAKER_02,And here we got.,28.191850594227503,32.58913412563667,SPEAKER_03, rallying supporters at the conservative Christian University or Roberts.
+34.4,51.6,SPEAKER_02,"A red-head from the Big Red Apple running for President. And yet, the GOP machine all of a sudden, they're saying, we're not red enough. We're not conservative enough. And I say, what in the world do they know about conservatism?",32.80984719864176,33.488964346349746,SPEAKER_02, We got
+51.98,63.67,SPEAKER_00,"Palin's support, a boost to Trump's conservative credentials. And a potential momentum killer for Ted Cruz, threatening to cut his main argument against Trump, that Trump is a closet liberal.",34.354838709677416,52.99660441426146,SPEAKER_02, a red head from the big red apple running for president and yet the GOP machine all of a sudden they're saying we're not red enough. We're not conservative enough and I say what in the world do they know about conservatism?
+66.98,74.84,SPEAKER_00,"Trump flying solo this morning in Iowa, despite a campaign announcement that Palin would travel with the GOP frontrunner to both of today's events.",52.99660441426146,63.62478777589134,SPEAKER_03, a boost to Trump's conservative credentials and a potential momentum killer for Ted Cruz. Bretton to undercut his main argument against Trump. Trump is a closet liberal.
+75.31,78.76,SPEAKER_01,Well how can you be running with a cloud over your head.,58.565365025466896,59.00679117147708,SPEAKER_02, Thank you.
+79.16,83.24,SPEAKER_00,Giving Trump the spotlight to himself to unload on Ted Cruz.,59.00679117147708,59.550084889643465,SPEAKER_01, undercut.
+82.05,87.53,SPEAKER_01,"And he said, with the, with the, being a Canadian citizen, he said, oh I didn't know that.",59.550084889643465,59.56706281833616,SPEAKER_02, you
+88.84,89.96,SPEAKER_01,How did he not know that?,65.2546689303905,66.54499151103565,SPEAKER_01, Look at that!
+90.94,92.81,SPEAKER_01,"Then he said with the loans, oh!",66.91850594227503,74.830220713073,SPEAKER_03, Trump flying solo this morning in Iowa despite a campaign announcement that Pellan would travel with the GOP frontrunner to both of today's events.
+93.35,94.17,SPEAKER_01,I didn't know that.,75.2207130730051,78.7181663837012,SPEAKER_00, How can you be running with a cloud over your head?
+94.93,96.92,SPEAKER_01,Smart guy. He doesn't know that?,79.05772495755517,83.35314091680814,SPEAKER_03, giving Trump the spotlight to himself to unload on Ted Cruz.
+97.54,99.81,SPEAKER_01,Yeah that's worse than Hillary when you think about it.,83.35314091680814,83.45500848896435,SPEAKER_00, you
+100.32,102.1,SPEAKER_00,And twists the knife a bit.,83.50594227504246,87.58064516129033,SPEAKER_00, with it being a Canadian citizen he said oh i didn't know that
+102.42,104.12,SPEAKER_01,You have a great governor in this state.,88.78607809847199,89.94057724957554,SPEAKER_00, How did he not know that?
+105.19,113.48,SPEAKER_01,"Terry Branstad came out yesterday and he said, you can't have, you can't have Cruz. And I think it has to do with more than ethanol. ",90.90831918505941,92.77589134125637,SPEAKER_00," Then he said with the loans, oh!"
+114.1,120.48,SPEAKER_00,Cruz today in New Hampshire launching a fresh attack at Trump for favoring big government when it comes to energy policy.,93.21731748726657,94.11714770797963,SPEAKER_00, I didn't know that.
+118.34,132.52,SPEAKER_03,"And they're all promising just yesterday. Donald Trump promised not only to protect the ethanol mandate to, but to expand it. To have the federal government do even more, picking winners and losers by mandating ethanol be a larger part of the market place.",94.830220713073,96.69779286926996,SPEAKER_00," Smart guy, he doesn't know that."
+133.08,149.56,SPEAKER_00,"Amid this battle there are no signs of wear for Trump. A new national poll showing Trump way out in front, with more than twice as much support as his closest rival. And in the CNN WMUR New Hampshire poll, Trump tops the pack, twenty points ahead of everyone else.",97.47877758913413,99.68590831918507,SPEAKER_00," Yeah, that's worse than Hillary when you think about it."
+150.04,155.6,SPEAKER_00,"Facing these headwinds, Ted Cruz making a big point. Showing he's trying to keep his spirits up.",100.33106960950764,102.13073005093378,SPEAKER_03, and twist the knife a bit.
+155.91,157.05,SPEAKER_03,Style matters.,102.36842105263159,104.06621392190152,SPEAKER_00, You have a great governor in this state.
+158.04,161.12,SPEAKER_03,"Look, would it kill republicans to crack a joke?",105.11884550084889,113.42105263157896,SPEAKER_00," Terry Brandstead came out yesterday and he said, you can't have, you can't have Cruz. And I think it has to do with more than ethanol."
+162.76,164.29,SPEAKER_03,Actually some of them I think it might.,114.06621392190152,120.53480475382003,SPEAKER_03, Today in New Hampshire launching a fresh attack at Trump for favoring big government when it comes to energy policy.
+165.94,168.27,SPEAKER_03,"You know, have a little fun for Pete's sake.",120.80645161290323,132.52122241086587,SPEAKER_01," Donald Trump promised not only to protect the ethanol mandate, but to expand it, to have the federal government do even more picking winners and losers by mandating ethanol be a larger part of the marketplace."
+,,,,133.06451612903226,142.8098471986418,SPEAKER_03," amid this battle, there are no signs of wear for Trump. A new national poll showing Trump way out in front with more than twice as much support as his closest rival."
+,,,,143.01358234295418,149.48217317487268,SPEAKER_03, and in the CNN WMUR New Hampshire poll Trump tops the pack. 20 points ahead of everyone else.
+,,,,149.94057724957557,155.509337860781,SPEAKER_03," facing these headwinds, Ted Cruz making a big point today to show he's trying to keep his spirits up."
+,,,,154.30390492359933,154.98302207130732,SPEAKER_01, I'm not a spirit.
+,,,,155.89983022071308,157.08828522920206,SPEAKER_01, Style matters.
+,,,,158.03904923599322,159.83870967741936,SPEAKER_01, Look what it killed Republicans.
+,,,,160.04244482173175,160.90831918505944,SPEAKER_01, to crack a joke.
+,,,,162.77589134125637,164.16808149405773,SPEAKER_01, Actually some of them I think it might.
+,,,,165.9507640067912,168.08998302207132,SPEAKER_01," You know, have a little fun for Pete's sake."

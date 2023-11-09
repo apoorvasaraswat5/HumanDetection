@@ -1,11 +1,10 @@
 import sys
-#from pyannote.metrics.diarization import DiarizationErrorRate
-#from pyannote.database import get_protocol, FileFinder
+from pyannote.metrics.diarization import DiarizationErrorRate
 from pyannote.core import Annotation, Segment
 import os
 import csv
-import pandas as pd # include in requirements.txt
-#from whisper_diarization import whisper_diarization
+import pandas as pd  # include in requirements.txt
+from whisper_diarization import whisper_diarization
 
 
 def test_audio():
@@ -65,8 +64,9 @@ def rttm_to_annotation(file, filename):
 
 
 def main():
-    #test_audio()
-    visualize_output("aepyx")
+    # test_audio()
+    visualize_output("sample2")
+
 
 def visualize_output(filename: str):
     """
@@ -76,15 +76,25 @@ def visualize_output(filename: str):
         filename - string of the name of the file, no extensions
     """
     # get hypothesis + annotation
-    audio_file = "HumanDetection/dataset/audio_files/" + filename + '.wav'
-    #hyp = whisper_diarization(audio_file)
+    audio_file = "HumanDetection/dataset/audio_files/" + filename + ".wav"
+    hyp = whisper_diarization(audio_file)
 
     # get annotation
-    with open("HumanDetection/dataset/annotations/" + filename + '.csv', 'r', newline="") as csvfile:
-        # convert to dataframe for comaparison
-        ref = pd.read_csv(csvfile)
-        print(ref)
-        
+    with open(
+        "HumanDetection/dataset/annotations/" + filename + ".csv", "r", newline=""
+    ) as csvfile:
+        # convert to dataframe for comparison
+        ref_df = pd.read_csv(csvfile)
+        hyp_df = pd.DataFrame(
+            hyp, columns=["start_time", "end_time", "speaker", "text"]
+        )
+        comparison_df = pd.concat([ref_df, hyp_df.add_prefix("Hypothesis_")], axis=1)
+        # write out to output file
+        comparison_df.to_csv(
+            "HumanDetection/dataset/outputs/comparison_" + filename + ".csv",
+            index=False,
+        )
+
 
 if __name__ == "__main__":
     main()
