@@ -32,7 +32,7 @@ export const getVideoArtifacts = async (videoId: string) => {
                 ,
                 {
                     thumbnail: 'https://kwdmufkexqqxupbctksg.supabase.co/storage/v1/object/sign/demo/public/out1.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJkZW1vL3B1YmxpYy9vdXQxLnBuZyIsImlhdCI6MTY5ODM1NDM4MiwiZXhwIjoxNzI5ODkwMzgyfQ._NWVTwJbOdRT5fp4EdyjC8Aa-04S1EEvZe_3qNhyqko&t=2023-10-26T21%3A06%3A22.155Z',
-                    timestamp: '00:00:02'
+                    timestamp: '00:00:10'
                 }
             ],
             voiceDetectedFrames: [
@@ -42,7 +42,7 @@ export const getVideoArtifacts = async (videoId: string) => {
                 },
                 {
                     transcript: 'Speaker 3: Hello World',
-                    timestamp: '00:00:02'
+                    timestamp: '00:00:11'
                 }
             ]
             ,
@@ -70,7 +70,7 @@ export const getVideoArtifacts = async (videoId: string) => {
             ,
             {
                 thumbnail: 'https://kwdmufkexqqxupbctksg.supabase.co/storage/v1/object/public/human-detection-video-files/thumbnails/keyboard%20cat.mp4_d99de0f5-6d36-4af6-9707-37bbcfbf64ca_thumbnail',
-                timestamp: '00:00:02'
+                timestamp: '00:00:15'
             }
         ],
         voiceDetectedFrames: [
