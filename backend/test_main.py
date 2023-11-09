@@ -1,11 +1,10 @@
 import sys
 from pyannote.metrics.diarization import DiarizationErrorRate
 from pyannote.database import get_protocol, FileFinder
-from pyannote.core import Annotation
+from pyannote.core import Annotation, Segment
 import simpleder  # include in requirements.txt
 import os
-
-# from whisper_diarization import whisper_diarization
+from whisper_diarization import whisper_diarization
 
 
 def test_audio():
@@ -29,53 +28,45 @@ def test_audio():
         audio_path = os.path.join(audio_folder, audio_file)
 
         # feed audio into pipeline
-        # hyp = whisper_diarization(audio_path, testing=True)
+        hyp = whisper_diarization(audio_path, testing=True)
 
-        # clean up reference and hypothesis
-        ref = clean_rttm(reference_path)
+        # convert rttm file to Annotation
+        with open(reference_path, "r") as f:
+            ref = rttm_to_annotation(f, reference)
 
         # calculate DER
-        # error = simpleder.DER(ref, hyp)
-        # print(f"DER = {round(error, ndigits=4)} for {audio_file}")
-
         metric = DiarizationErrorRate()
+        value = metric(ref, hyp)
 
-        # value = metric(ref, hyp)
+        print(f"DER value: {round(value,ndigits=4)}")
 
 
-def clean_rttm(reference_path):
+def rttm_to_annotation(file, filename):
     """
-    Clean up an .rttm file for evaluation tasks
-    Args: file - file path for a .rttm file
-    Returns: a list of tuples of form:
-            (speaker id, time start, time end)
+    Convert a .rttm file to an Annotation object
+    Args:
+        f: The .rttm file
+        filename: the name of the file
+    Returns:
+        annotation: A new Annotation object
     """
-    res = []
-    running_time = 0.00  # keep track of time from 0.00
-    ann = Annotation(modality="speaker")
-    with open(reference_path, "r") as ref:
-        for line in ref:
-            temp = []
-            clean_line = line.split()
-            # get rid of irrelevant fields
-            # see https://stackoverflow.com/a/74358577 for more about rttm
-            onset = float(clean_line[3])
-            duration = float(clean_line[4])
-            id = clean_line[7]
-            temp.append(round(onset + duration, ndigits=4))  # end time
-            temp.append(round(onset, ndigits=4))  # start time
+    annotation = Annotation(modality="speaker")
+    for line in file:
+        temp = []
+        clean_line = line.split()
+        # get rid of irrelevant fields
+        # see https://stackoverflow.com/a/74358577 for more about rttm
+        onset = float(clean_line[3])
+        duration = float(clean_line[4])
+        id = clean_line[7]
+        temp.append(round(onset + duration, ndigits=4))  # end time
+        temp.append(round(onset, ndigits=4))  # start time
+        # clean speaker id tag
+        temp.append(id[3:] if id[3] != "0" else id[4:])
+        temp = tuple(temp[::-1])
+        annotation[Segment(onset, duration + onset), filename] = id
 
-            # clean speaker id tag
-            temp.append(id[3:] if id[3] != "0" else id[4:])
-            temp = tuple(temp[::-1])
-            res.append(temp)
-
-            ann[]
-
-    return res
-
-
-""" def test_database(): """
+    return annotation
 
 
 def main():
