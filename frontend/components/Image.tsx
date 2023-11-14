@@ -1,5 +1,10 @@
-export default function Image({src}: {src: string}) {
+export default function Image(src: string) {
     return (
-        <img className="h-auto max-w-lg rounded-lg" src={src} alt="image description"/>
+              <img
+                className="h-[200px] w-[250px] max-w-lg rounded-lg"
+                alt=""
+                src={src}
+                key={src}
+              />
     )
 }
