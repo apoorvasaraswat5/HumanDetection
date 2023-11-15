@@ -18,6 +18,8 @@ from transformers import pipeline
 from gotrue.errors import AuthApiError
 from utils import convert_to_wav
 from whisper_diarization import whisper_diarization
+from transformers import AutoFeatureExtractor, AutoModelForObjectDetection
+from PIL import Image
 
 # Start backend inside file
 import uvicorn
@@ -195,97 +197,102 @@ def transcribe(filename: str):
 
 
 @app.post("/video")
-def detect_person(local_file_path: str):
-    output_path = humanDetector(local_file_path)
-    print("local path: ", local_file_path)
-    return {"output_path": output_path}
-
-
-def detect(frame):
-    HOGCV = cv2.HOGDescriptor()
-    HOGCV.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
-    bounding_box_cordinates, weights = HOGCV.detectMultiScale(
-        frame, winStride=(4, 4), padding=(8, 8), scale=1.03
-    )
-
-    person = 1
-    for x, y, w, h in bounding_box_cordinates:
-        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-        cv2.putText(
-            frame,
-            f"person {person}",
-            (x, y),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.5,
-            (0, 0, 255),
-            1,
-        )
-        person += 1
-
-    cv2.putText(
-        frame,
-        "Status : Detecting ",
-        (40, 40),
-        cv2.FONT_HERSHEY_DUPLEX,
-        0.8,
-        (255, 0, 0),
-        2,
-    )
-    cv2.putText(
-        frame,
-        f"Total Persons : {person-1}",
-        (40, 70),
-        cv2.FONT_HERSHEY_DUPLEX,
-        0.8,
-        (255, 0, 0),
-        2,
-    )
-    cv2.imshow("output", frame)
-
-    return frame
+def detect_person(local_file_path: str, s3_key_video: str):
+    # this needs s3_key_video to identify which video we need to add the output for
+    video_path, images_path = humanDetector(local_file_path)
+    raw_data = utils.upload_output_video_and_images(video_path, images_path, s3_key_video)
+    data = raw_data[1][0]
+    remove_temp_files(video_path, images_path)
+    return {"output": data}
 
 
 def humanDetector(local_file_path):
-    # image_path = args["image"]
-    video_path = local_file_path
-    output_path = os.getcwd() + "\\..\\output\\output.mp4"
-    print("output: ", output_path)
-    writer = cv2.VideoWriter(
-        output_path, cv2.VideoWriter_fourcc(*"MJPG"), 10, (600, 600)
-    )
+    print("inside humanDetector")
+    # Initialize the object detection model (change the model name)
+    model_name = "facebook/detr-resnet-50"
+    feature_extractor = AutoFeatureExtractor.from_pretrained(model_name)
+    model = AutoModelForObjectDetection.from_pretrained(model_name)
 
-    if video_path is not None:
-        print("[INFO] Opening Video from path.")
-        return detectByPathVideo(video_path, writer, output_path)
+    object_detection = pipeline("object-detection", model=model, feature_extractor=feature_extractor)
 
+    # Initialize the face detection model (use your own pre-trained model)
+    cap = cv2.VideoCapture(local_file_path)
 
-def detectByPathVideo(path, writer, output_path):
-    video = cv2.VideoCapture(path)
-    check, frame = video.read()
-    if not check:
-        print(
-            "Video Not Found. Please Enter a Valid Path (Full path of Video Should be Provided)."
-        )
-        print("path: ", path)
-        return
+    # Initialize variables for face tracking
+    faces = []
+    face_id = 0
 
-    print("Detecting people...")
-    while video.isOpened():
-        # check is True if reading was successful
-        check, frame = video.read()
+    # Create a VideoWriter object to save the output videos
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    video_path = os.path.join(os.getcwd(), "output_video.mp4")
+    images_path = os.path.join(os.getcwd(), "images")
 
-        if check:
-            frame = imutils.resize(frame, width=min(800, frame.shape[1]))
-            frame = detect(frame)
+    if not os.path.exists("images"):
+        os.mkdir("images")
 
-            if writer is not None:
-                writer.write(frame)
+    output_video = cv2.VideoWriter(video_path, fourcc, 20.0, (640, 480))
 
-            key = cv2.waitKey(1)
-            if key == ord("q"):
-                break
-        else:
+    while cap.isOpened():
+        ret, frame = cap.read()
+
+        if not ret:
             break
-    video.release()
+
+        # Resize the frame for faster processing
+        frame = cv2.resize(frame, (640, 480))
+        color_converted = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        pil_image = Image.fromarray(color_converted)
+
+        # Detect objects in the frame using the object detection model
+        results = object_detection(pil_image)
+
+        # Extract human objects from detected objects
+        humans = [obj for obj in results if obj['label'] == 'person']
+        print("human detected")
+        for human in humans:
+            x1, y1, x2, y2 = human['box'].values()
+            # Draw a rectangle around the detected human
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+
+            # Extract the human face from the region
+            face = frame[y1:y2, x1:x2]
+            try:
+                face = cv2.resize(face, (640, 480))
+            except Exception:
+                continue
+
+            is_unique = True
+            for existing_face in faces:
+                print("checking face similarity..")
+                similarity = cv2.matchTemplate(face, existing_face, cv2.TM_CCOEFF_NORMED)
+                if similarity.max(initial=None) > 0.25:  # Adjust the threshold as needed
+                    print("not unique")
+                    is_unique = False
+                    break
+            # Check if the face is unique by comparing with previously detected faces
+
+            if is_unique:
+                print("unique")
+                faces.append(face)
+                face_id += 1
+                cv2.imwrite(os.path.join("images", f"unique_face_{face_id}.jpg"), face)
+
+        print("writing frame")
+        # Write the frame to the output videos
+        output_video.write(frame)
+
+    print("done")
+    cap.release()
+    output_video.release()
     cv2.destroyAllWindows()
-    return output_path
+    return video_path, images_path
+
+
+def remove_temp_files(video_path, images_path):
+    print("Removing temporary files")
+    try:
+        os.remove(video_path)
+        shutil.rmtree(images_path)
+    except OSError as e:
+        print("Error: %s - %s." % (e.filename, e.strerror))
+        raise e
