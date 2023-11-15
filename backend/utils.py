@@ -79,8 +79,8 @@ def extract_audio(video):
     video_clip.close()
     audio_clip.close()
     
-    os.remove(temp_video_path)
-    return temp_wav_path
+    
+    return temp_wav_path,temp_video_path
 
 def create_thumbnail(file):
     temp_file_path = tempfile.NamedTemporaryFile(delete=False).name
