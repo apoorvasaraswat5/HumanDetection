@@ -126,7 +126,7 @@ def upload_output_video_and_images(video_path, images_path, s3_key_video):
 
     # upload images
 
-    images_path_on_supastorage = f"images/{video_file_name}"
+    images_path_on_supastorage = list()
     images_directory = os.fsencode(images_path)
 
     for file in os.listdir(images_directory):
@@ -141,6 +141,7 @@ def upload_output_video_and_images(video_path, images_path, s3_key_video):
                     file=file,
                     file_options={"content-type": "image/jpg"}
                 )
+            images_path_on_supastorage.append(image_file_path_on_supastorage)
 
     data,count = supabase.table(TABLE_NAME).update({"image_path": images_path_on_supastorage, "output_video_path": video_path_on_supastorage}).eq('user_id', user_id).eq('video_path', s3_key_video).execute()
     return data
