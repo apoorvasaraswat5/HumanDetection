@@ -189,7 +189,20 @@ Next steps:
 - File upload - Ryan working on changing HTML frontend to NextJS
 
 **Week of 10/23/23 - 10/29/23: 6**
-- TBD
+- Ryan - worked on frontend, fixed rendering issues. we can now upload and view files on frontend
+- Matt - created thumbnail from video, added new endpoint to download videos, added an endpoint to fetch data for a user, working on combining endpoints
+- Xingyu - combined diarization and whisper pipelines. tells timestamps that each person speaks at.
+- Apoorva - worked on fetching unique faces from the videos and save it to supabase, currently facing issues with it
+- Peter - worked on backend
+- Krisna - found a dataset and ran performance test on audio endpoint, will work on video as well
+- Ben's feedback -
+   - add some performance metrics in the final presentation
+   - investigate on what type of data is it successful on
+   - what are the failures
+   - why are the failures
+   - eg - struggles on low light videos, or audios where multiple people are talking over each other
+   - can hyper tune models to make it better
+   - can create a dataset yourself and fine tune on that
 
 **Week of 10/30/23 - 11/5/23: 7**
 - TBD
