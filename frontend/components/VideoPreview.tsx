@@ -8,7 +8,7 @@ export default function VideoPreview({currentVideoArtifacts} : {currentVideoArti
         <h2 className="text-2xl font-bold tracking-tight text-gray-900">
           Images
         </h2>
-        <div className="flex flex-row p-5 space-x-5">
+        <div className="flex flex-row p-5 space-x-5 overflow-scroll">
           {
             currentVideoArtifacts.peopleDetectedFrames?.map((frame) => {
               return <img
