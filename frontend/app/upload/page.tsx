@@ -1,13 +1,9 @@
 "use client"
-import Card from "@/components/Card";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/Dialog";
 import { useRef, useState, useEffect, useCallback } from "react";
 import style from 'app/upload/upload.module.css';
 import RecentUpload from "./components/RecentUpload";
-import { json } from "stream/consumers";
 import CurrentUpload from "./components/CurrentUpload";
 import axios from "axios";
-import { stat } from "fs";
 
 interface Video {
   name: string;
@@ -181,12 +177,14 @@ export default function page() {
   }
   return (
     <div className="main-content flex h-screen">
+        <a style={{color:'black'}} href="/">Home</a>
         <div className={style.topnav}>
-            <div className={style.selector}>
-                <div id="recent" className={recentIsActive ? style.active : ''} onClick={handleClick}>Recent</div>
-                <div id="upload" className={uploadIsActive ? style.active : ''} onClick={handleClick}>Upload</div>
-            </div>
-        </div>
+          <div className={style.selector}>
+              <a href='/'>Home</a>
+              <div id="recent" className={recentIsActive ? style.active : ''} onClick={handleClick}>Recent</div>
+              <div id="upload" className={uploadIsActive ? style.active : ''} onClick={handleClick}>Upload</div>
+          </div>
+      </div>
         {recentIsActive ?(
           <div id="recentlist" style={{marginTop: 40}} className="w-full">
               {
