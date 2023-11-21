@@ -44,7 +44,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount("/static", StaticFiles(directory="../basic_frontend/src"), name="static")
+# app.mount("/static", StaticFiles(directory="../basic_frontend/src"), name="static")
 
 
 @app.get("/favicon.ico")
@@ -118,15 +118,19 @@ def fetch_data(user_id=0):
         )
     return {"message": "Fetched data successfully", "data": data}
 
+
 @app.get("/download")
 def download_file(file_path):
-    
-    content_types = {"videos": "video/mp4", "thumbnails": "image/x-png", "images":"image/jpg"}
-   
+    content_types = {
+        "videos": "video/mp4",
+        "thumbnails": "image/x-png",
+        "images": "image/jpg",
+    }
+
     file = utils.download_file_by_path(file_path)
     key = file_path.split("/")[0]
     content_type = content_types[key]
-    return Response(file,media_type=content_type)
+    return Response(file, media_type=content_type)
 
 
 @app.post("/audio")
@@ -155,19 +159,19 @@ def query(filename: str, local=True):
                 detail=f"Failed to connect to huggingface inference API: {e}",
             )
 
+
 @app.post("/process")
 def process_video(file_path):
     video = utils.download_file_by_path(file_path)
-    temp_wav_path,temp_video_path = utils.extract_audio(video)
+    temp_wav_path, temp_video_path = utils.extract_audio(video)
 
-    video_results = detect_person(temp_video_path,file_path)
+    video_results = detect_person(temp_video_path, file_path)
     audio_results = whisper_diarization(temp_wav_path)
-    
+
     os.remove(temp_wav_path)
     os.remove(temp_video_path)
     return {"audio": audio_results, "video": video_results}
-    
-    
+
 
 @app.post("/diarize")
 def diarize(filename: str):
@@ -190,7 +194,6 @@ def diarize(filename: str):
     return [{"starts": starts}, {"ends": ends}, {"speakers": speakers}]
 
 
-
 @app.post("/transcribe")
 def transcribe(filename: str):
     return whisper_diarization(filename)
@@ -200,20 +203,24 @@ def transcribe(filename: str):
 def detect_person(local_file_path: str, s3_key_video: str):
     # this needs s3_key_video to identify which video we need to add the output for
     video_path, images_path = humanDetector(local_file_path)
-    raw_data = utils.upload_output_video_and_images(video_path, images_path, s3_key_video)
+    raw_data = utils.upload_output_video_and_images(
+        video_path, images_path, s3_key_video
+    )
     data = raw_data[1][0]
     remove_temp_files(video_path, images_path)
     return {"output": data}
 
 
-def humanDetector(local_file_path):
+def humanDetector(local_file_path, testing=False):
     print("inside humanDetector")
     # Initialize the object detection model (change the model name)
     model_name = "facebook/detr-resnet-50"
     feature_extractor = AutoFeatureExtractor.from_pretrained(model_name)
     model = AutoModelForObjectDetection.from_pretrained(model_name)
 
-    object_detection = pipeline("object-detection", model=model, feature_extractor=feature_extractor)
+    object_detection = pipeline(
+        "object-detection", model=model, feature_extractor=feature_extractor
+    )
 
     # Initialize the face detection model (use your own pre-trained model)
     cap = cv2.VideoCapture(local_file_path)
@@ -223,9 +230,15 @@ def humanDetector(local_file_path):
     face_id = 0
 
     # Create a VideoWriter object to save the output videos
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    video_path = os.path.join(os.getcwd(), "output_video.mp4")
-    images_path = os.path.join(os.getcwd(), "images")
+    fourcc = cv2.VideoWriter_fourcc(*"XVID")
+    if testing:
+        video_path = os.path.join(
+            "HumanDetection/dataset/output_videos", "output_video.mp4"
+        )
+        images_path = "HumanDetection/dataset/images"
+    else:
+        video_path = os.path.join(os.getcwd(), "output_video.mp4")
+        images_path = os.path.join(os.getcwd(), "images")
 
     if not os.path.exists("images"):
         os.mkdir("images")
@@ -247,10 +260,10 @@ def humanDetector(local_file_path):
         results = object_detection(pil_image)
 
         # Extract human objects from detected objects
-        humans = [obj for obj in results if obj['label'] == 'person']
+        humans = [obj for obj in results if obj["label"] == "person"]
         print("human detected")
         for human in humans:
-            x1, y1, x2, y2 = human['box'].values()
+            x1, y1, x2, y2 = human["box"].values()
             # Draw a rectangle around the detected human
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
@@ -264,8 +277,12 @@ def humanDetector(local_file_path):
             is_unique = True
             for existing_face in faces:
                 print("checking face similarity..")
-                similarity = cv2.matchTemplate(face, existing_face, cv2.TM_CCOEFF_NORMED)
-                if similarity.max(initial=None) > 0.25:  # Adjust the threshold as needed
+                similarity = cv2.matchTemplate(
+                    face, existing_face, cv2.TM_CCOEFF_NORMED
+                )
+                if (
+                    similarity.max(initial=None) > 0.25
+                ):  # Adjust the threshold as needed
                     print("not unique")
                     is_unique = False
                     break
@@ -285,6 +302,7 @@ def humanDetector(local_file_path):
     cap.release()
     output_video.release()
     cv2.destroyAllWindows()
+
     return video_path, images_path
 
 

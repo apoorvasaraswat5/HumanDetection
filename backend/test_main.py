@@ -4,7 +4,9 @@ from pyannote.core import Annotation, Segment
 import os
 import csv
 import pandas as pd  # include in requirements.txt
+from PIL import Image  # include in requirements.txt
 from whisper_diarization import whisper_diarization
+from main import humanDetector
 
 
 def test_audio():
@@ -41,6 +43,40 @@ def test_audio():
         print(f"DER value: {round(value,ndigits=4)}")
 
 
+def test_video(filename):
+    """
+    Evaluate the human detection pipeline according to easily interpretable metrics
+    """
+    # run sample
+    humanDetector("HumanDetection/dataset/video_files/" + filename, testing=True)
+    # grab image folder location
+    image_folder = "images"
+
+    # define output folder location
+    output_folder = "HumanDetection/dataset/outputs"
+
+    # grab all images into a list
+    image_files = [f for f in os.listdir(image_folder) if f.endswith((".jpg"))]
+
+    # get img size
+    first_image = Image.open(os.path.join(image_folder, image_files[0]))
+    width, height = first_image.size
+
+    # create combined image with new width and height
+    combined_image = Image.new("RGB", (width * len(image_files), height))
+
+    # add images into combined_image
+    for i, image_file in enumerate(image_files):
+        image_path = os.path.join(image_folder, image_file)
+        img = Image.open(image_path)
+        combined_image.paste(img, (i * width, 0))
+
+    root, ext = os.path.splitext(filename)
+
+    # save combined image
+    combined_image.save(os.path.join(output_folder, root + "_pred.jpg"))
+
+
 def rttm_to_annotation(file, filename):
     """
     Convert a .rttm file to an Annotation object
@@ -65,7 +101,8 @@ def rttm_to_annotation(file, filename):
 
 def main():
     # test_audio()
-    visualize_output("sample2")
+    # visualize_output("sample2")
+    test_video("sample1.mp4")
 
 
 def visualize_output(filename: str):
