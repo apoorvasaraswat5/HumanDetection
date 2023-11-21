@@ -10,6 +10,7 @@ from dotenv import load_dotenv  # Corrected import statement
 import requests
 import utils
 import os
+import torch
 import cv2
 import imutils
 from pyannote.audio import Pipeline
@@ -33,7 +34,6 @@ app = FastAPI()
 
 origins = [
     "http://localhost:3000",
-    "*" #We may want to remove this in the future
 ]
 
 app.add_middleware(
@@ -102,11 +102,11 @@ async def upload_file(file: UploadFile):
             status_code=500,
             detail=f"Failed to upload file {file.filename} to s3.\nError that occurred: {str(e)}",
         )
-    return {"message": "File uploaded successfully","file-name": file.filename}
+    return {"message": "File uploaded successfully", "data": data}
 
 
 @app.get("/fetchData")
-def fetch_data():
+def fetch_data(user_id=0):
     try:
         raw_data = utils.get_data(user_id)
         data = raw_data[1]
@@ -129,7 +129,7 @@ def download_file(file_path):
     return Response(file,media_type=content_type)
 
 
-@app.post("/whisper")
+@app.post("/audio")
 def query(filename: str, local=True):
     if local:
         # use speech pipeline hosted locally
@@ -158,13 +158,14 @@ def query(filename: str, local=True):
 @app.post("/process")
 def process_video(file_path):
     video = utils.download_file_by_path(file_path)
-    temp_wav_path = utils.extract_audio(video)
+    temp_wav_path,temp_video_path = utils.extract_audio(video)
 
-    video_results = None
     audio_results = whisper_diarization(temp_wav_path)
-    
+    utils.upload_audio(audio_results,file_path)
+    video_results = detect_person(temp_video_path,file_path)
+
     os.remove(temp_wav_path)
-    
+    os.remove(temp_video_path)
     return {"audio": audio_results, "video": video_results}
     
     
@@ -189,11 +190,6 @@ def diarize(filename: str):
 
     return [{"starts": starts}, {"ends": ends}, {"speakers": speakers}]
 
-
-
-@app.post("/transcribe")
-def transcribe(filename: str):
-    return whisper_diarization(filename)
 
 
 @app.post("/transcribe")
