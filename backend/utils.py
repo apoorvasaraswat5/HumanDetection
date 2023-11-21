@@ -60,6 +60,27 @@ def upload_file(file):
     )
     return data
 
+def extract_audio(video):
+    temp_video = tempfile.NamedTemporaryFile(suffix=".mp4", delete=False)
+    temp_video.write(video)
+    temp_video_path = temp_video.name
+    temp_video.close()
+    
+    video_clip = VideoFileClip(temp_video_path)
+    audio_clip = video_clip.audio
+    
+    temp_wav = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
+    temp_wav_path = temp_wav.name
+   
+    audio_clip.write_audiofile(temp_wav_path)
+    temp_wav.close()
+
+    
+    video_clip.close()
+    audio_clip.close()
+    
+    
+    return temp_wav_path,temp_video_path
 
 def create_thumbnail(file):
     temp_file_path = tempfile.NamedTemporaryFile(delete=False).name
@@ -102,3 +123,46 @@ def convert_to_wav(filename: str):
         # convert to wav it is not already in the format
         os.system(f"ffmpeg -i {filename} {name}.wav")
     return path
+
+
+def upload_output_video_and_images(video_path, images_path, s3_key_video):
+
+    user_data = supabase.auth.get_user()
+    #in the future throw auth error if user doesn't exist
+    user_id = 0
+    if user_data:
+        user_id = user_data.user.id
+
+    # upload output video
+
+    video_file_name = s3_key_video.split("/")[1] + "_output_video.mp4"  # videos/videoplayback.mp4_b748dfaf-369b-4fc5-9a93-7d7d5a31e694
+    video_path_on_supastorage = f"videos/{video_file_name}"
+
+    with open(video_path, "rb") as file:
+        supabase.storage.from_(BUCKET_NAME).upload(
+            path=video_path_on_supastorage,
+            file=file,
+            file_options={"content-type": "video/mp4"}
+        )
+
+    # upload images
+
+    images_path_on_supastorage = list()
+    images_directory = os.fsencode(images_path)
+
+    for file in os.listdir(images_directory):
+         filename = os.fsdecode(file)
+         if filename.endswith(".jpg"):
+            filepath = os.path.join(images_path, filename)
+            image_file_path_on_supastorage = f"images/{video_file_name}/{filename}"
+
+            with open(filepath, "rb") as file:
+                supabase.storage.from_(BUCKET_NAME).upload(
+                    path=image_file_path_on_supastorage,
+                    file=file,
+                    file_options={"content-type": "image/jpg"}
+                )
+            images_path_on_supastorage.append(image_file_path_on_supastorage)
+
+    data,count = supabase.table(TABLE_NAME).update({"image_path": images_path_on_supastorage, "output_video_path": video_path_on_supastorage}).eq('user_id', user_id).eq('video_path', s3_key_video).execute()
+    return data
