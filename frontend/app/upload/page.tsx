@@ -191,7 +191,7 @@ export default function page() {
                 recentVideos.sort((a,b) =>{
                   return new Date(b.date).getTime() - new Date(a.date).getTime();
                 }).map((video) => {
-                  return <RecentUpload onClick={handleClick} fileName={video.name} size={video.processed} date={video.date} key={video.name} thumbnail={video.thumbnail_path}/>;
+                  return <RecentUpload onClick={handleClick} fileName={video.name} processed={video.processed} date={video.date} key={video.name} thumbnail={video.thumbnail_path}/>;
                 })
               }
           </div>
