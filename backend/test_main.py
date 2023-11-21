@@ -2,7 +2,7 @@ import sys
 from pyannote.metrics.diarization import DiarizationErrorRate
 from pyannote.core import Annotation, Segment
 import os
-import csv
+import csv  # include in requirements.txt
 import pandas as pd  # include in requirements.txt
 from PIL import Image  # include in requirements.txt
 from whisper_diarization import whisper_diarization
@@ -46,35 +46,51 @@ def test_audio():
 def test_video(filename):
     """
     Evaluate the human detection pipeline according to easily interpretable metrics
+    Ensure that in /image_references, there is a folder with the same name as filename
+    that holds the ground truth images
+        Args:
+            filename - the name of the video file to be evaluated (.mp4)
     """
+
+    # grab just file name
+    root, ext = os.path.splitext(filename)
+
     # run sample
-    humanDetector("HumanDetection/dataset/video_files/" + filename, testing=True)
-    # grab image folder location
+    # humanDetector("HumanDetection/dataset/video_files/" + filename, testing=True)
+    # grab image folder locations
     image_folder = "images"
+    truth_folder = "HumanDetection/dataset/images_references/" + root
 
     # define output folder location
     output_folder = "HumanDetection/dataset/outputs"
 
-    # grab all images into a list
-    image_files = [f for f in os.listdir(image_folder) if f.endswith((".jpg"))]
+    # grab all images into lists
+    image_files = [f for f in os.listdir(image_folder) if f.endswith((".jpg", ".png"))]
+    truth_files = [f for f in os.listdir(truth_folder) if f.endswith((".jpg", ".png"))]
 
     # get img size
     first_image = Image.open(os.path.join(image_folder, image_files[0]))
     width, height = first_image.size
 
-    # create combined image with new width and height
+    # create combined images with new width and height
     combined_image = Image.new("RGB", (width * len(image_files), height))
+    combined_truth = Image.new("RGB", (width * len(image_files), height))
 
-    # add images into combined_image
+    # add images into combined images
     for i, image_file in enumerate(image_files):
         image_path = os.path.join(image_folder, image_file)
         img = Image.open(image_path)
         combined_image.paste(img, (i * width, 0))
 
-    root, ext = os.path.splitext(filename)
+    for i, truth_file in enumerate(truth_files):
+        truth_path = os.path.join(truth_folder, truth_file)
+        img = Image.open(truth_path)
+        img = img.resize((640, 480))
+        combined_truth.paste(img, (i * width, 0))
 
-    # save combined image
+    # save combined images
     combined_image.save(os.path.join(output_folder, root + "_pred.jpg"))
+    combined_truth.save(os.path.join(output_folder, root + "_truth.jpg"))
 
 
 def rttm_to_annotation(file, filename):
