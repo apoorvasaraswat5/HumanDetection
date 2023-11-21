@@ -25,7 +25,7 @@ def get_supabase():
 
 def upload_audio(audio,video_path):
     audio_res = {"audio": audio}
-    supabase.table(TABLE_NAME).update({'audio': audio_res}).eq('video_path',video_path).execute()
+    supabase.table(TABLE_NAME).update({'audio_results': audio_res}).eq('video_path',video_path).execute()
 
 def upload_file(file):
     uuid_val = uuid.uuid4()
