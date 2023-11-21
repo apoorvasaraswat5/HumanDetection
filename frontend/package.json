@@ -20,6 +20,7 @@
     "react": "latest",
     "react-bootstrap": "^2.9.1",
     "react-dom": "latest",
+    "react-query": "^3.39.3",
     "reactstrap": "^9.2.0",
     "video.js": "^8.6.0"
   },
