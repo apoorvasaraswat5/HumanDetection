@@ -1,13 +1,19 @@
 import os
-
-# make sure you install ffmpeg for it to work
+import shutil
+import tempfile
+from PIL import Image
+import uuid
+from supabase import create_client, Client
+from dotenv import load_dotenv
+from moviepy.editor import VideoFileClip
+from io import BytesIO
 
 
 load_dotenv()
 
-BUCKET_NAME = "human-detection-videos-files"
+BUCKET_NAME = "human-detection-video-files"
 
-TABLE_NAME = "videos-files"
+TABLE_NAME = "video-files"
 
 
 supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
@@ -16,6 +22,10 @@ supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
 def get_supabase():
     return supabase
 
+
+def upload_audio(audio,video_path):
+    audio_res = {"audio": audio}
+    supabase.table(TABLE_NAME).update({'audio_results': audio_res}).eq('video_path',video_path).execute()
 
 def upload_file(file):
     uuid_val = uuid.uuid4()
@@ -73,8 +83,8 @@ def extract_audio(video):
     video_clip.close()
     audio_clip.close()
     
-    os.remove(temp_video_path)
-    return temp_wav_path
+    
+    return temp_wav_path,temp_video_path
 
 def create_thumbnail(file):
     temp_file_path = tempfile.NamedTemporaryFile(delete=False).name
@@ -108,9 +118,10 @@ def get_data(user_id):
     return data
 
 
-def upload_images(filepath):
-    uuid_val = uuid.uuid4()
-    filename = filepath.split("\\")[-1].rstrip(".jpg")
+# audio helper functions
+def convert_to_wav(filename: str):
+    name, ext = os.path.splitext(filename)
+    path = f"{name}.wav"
 
     if ext != ".wav":
         # convert to wav it is not already in the format
@@ -140,7 +151,7 @@ def upload_output_video_and_images(video_path, images_path, s3_key_video):
 
     # upload images
 
-    images_path_on_supastorage = f"images/{video_file_name}"
+    images_path_on_supastorage = list()
     images_directory = os.fsencode(images_path)
 
     for file in os.listdir(images_directory):
@@ -155,6 +166,7 @@ def upload_output_video_and_images(video_path, images_path, s3_key_video):
                     file=file,
                     file_options={"content-type": "image/jpg"}
                 )
+            images_path_on_supastorage.append(image_file_path_on_supastorage)
 
     data,count = supabase.table(TABLE_NAME).update({"image_path": images_path_on_supastorage, "output_video_path": video_path_on_supastorage}).eq('user_id', user_id).eq('video_path', s3_key_video).execute()
     return data

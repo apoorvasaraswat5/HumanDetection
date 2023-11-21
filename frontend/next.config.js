@@ -7,8 +7,7 @@ const nextConfig = {
               hostname: 'i.imgur.com',
               port: '',
             }],
-    },
-    reactStrictMode: false,
+    }
 }
 
 module.exports = nextConfig
