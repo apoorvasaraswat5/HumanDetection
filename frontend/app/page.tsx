@@ -2,8 +2,9 @@
 import Card from "@/components/Card";
 import VideoPage from "@/components/VideoPage";
 import VideoPreview from "@/components/VideoPreview";
-import { VideoArtifacts, getAllVideosResponse } from "@/utils/api";
+import { VideoArtifacts, fetchData, fetchVideoArtifacts, getAllVideosResponse } from "@/utils/api";
 import { getAllVideos, getVideoArtifacts } from "@/utils/api-mocks";
+import { get } from "http";
 import { useEffect, useState } from "react";
 export default function Home() {
   const [Videos, setVideos] = useState<getAllVideosResponse>([] as any);
@@ -18,21 +19,37 @@ export default function Home() {
     e.stopPropagation();
     setcurrentVideo(currentVideo);
   };
-  useEffect(() => {
-    const fetchVideos = async () => {
-      const res: any =  await getAllVideos();
+  // useEffect(() => {
+  //   const fetchVideos = async () => {
+  //     const res: any =  await getAllVideos();
+  //     setVideos(res);
+  //   }
+  //   fetchVideos();
+  // },[])
+  // useEffect(() => {
+  //   const fetchVideoArtifacts = async () => {
+  //     const res: any = await getVideoArtifacts(currentVideo);
+  //     setcurrentVideoArtifacts(res);
+  //   }
+  //   fetchVideoArtifacts();
+  // },[Videos, currentVideo])
+
+  useEffect(() =>{
+    const getData = async () => {
+      const res = await fetchData();
+      console.log(res);
       setVideos(res);
     }
-    fetchVideos();
-  },[])
+    getData();
+  }, [])
+
   useEffect(() => {
-    const fetchVideoArtifacts = async () => {
-      const res: any = await getVideoArtifacts(currentVideo);
+    const getVideoArtifacts = async () => {
+      const res: any = await fetchVideoArtifacts(currentVideo);
       setcurrentVideoArtifacts(res);
     }
-    fetchVideoArtifacts();
-  },[Videos, currentVideo])
-
+    getVideoArtifacts();
+  }, [Videos, currentVideo])
   return (
     <div className="main-content flex h-screen">
       <div className="sidebar w-1/4 space-y-3 bg-gray-300 overflow-scroll">

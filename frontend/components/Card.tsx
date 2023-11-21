@@ -20,7 +20,7 @@ export default function Card({
     >
       <img src={thumbnail} className="w-[100px] h-[75px]"/>
       <div className="mb-2 text-lg text-gray-900">
-        <div className="font-bold">{fileName}</div>
+        <div className="font-bold truncate w-20">{fileName}</div>
         <div>{date}</div>
       </div>
       <div className="filesize border-2 p-2 ml-auto group-hover:border-black">
