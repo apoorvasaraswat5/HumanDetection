@@ -135,8 +135,9 @@ def process_video(file_path):
     video = utils.download_file_by_path(file_path)
     temp_wav_path, temp_video_path = utils.extract_audio(video)
 
-    video_results = detect_person(temp_video_path, file_path)
     audio_results = whisper_diarization(temp_wav_path)
+    utils.upload_audio(audio_results, file_path)
+    video_results = detect_person(temp_video_path, file_path)
 
     os.remove(temp_wav_path)
     os.remove(temp_video_path)
