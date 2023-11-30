@@ -200,8 +200,8 @@ def transcribe(filename: str):
 @app.post("/video")
 def detect_person(local_file_path: str, s3_key_video: str):
     # this needs s3_key_video to identify which video we need to add the output for
-    video_path, images_path = humanDetector(local_file_path)
-    raw_data = utils.upload_output_video_and_images(video_path, images_path, s3_key_video)
+    video_path, images_path, faces_with_timestamp = humanDetector(local_file_path)
+    raw_data = utils.upload_output_video_and_images(video_path, images_path, faces_with_timestamp, s3_key_video)
     data = raw_data[1][0]
     remove_temp_files(video_path, images_path)
     return {"output": data}
@@ -222,6 +222,7 @@ def humanDetector(local_file_path):
     # Initialize variables for face tracking
     faces = []
     face_id = 0
+    faces_with_timestamp = dict()
 
     # Create a VideoWriter object to save the output videos
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
@@ -241,6 +242,7 @@ def humanDetector(local_file_path):
 
         # Resize the frame for faster processing
         frame = cv2.resize(frame, (640, 480))
+        timestamp = cap.get(cv2.CAP_PROP_POS_MSEC) / 1000.0  # Convert milliseconds to seconds
         color_converted = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         pil_image = Image.fromarray(color_converted)
 
@@ -276,7 +278,9 @@ def humanDetector(local_file_path):
                 print("unique")
                 faces.append(face)
                 face_id += 1
-                cv2.imwrite(os.path.join("images", f"unique_face_{face_id}.jpg"), face)
+                path = f"unique_face_{face_id}.jpg"
+                cv2.imwrite(os.path.join("images", path), face)
+                faces_with_timestamp[path] = timestamp
 
         print("writing frame")
         # Write the frame to the output videos
@@ -286,7 +290,7 @@ def humanDetector(local_file_path):
     cap.release()
     output_video.release()
     cv2.destroyAllWindows()
-    return video_path, images_path
+    return video_path, images_path, faces_with_timestamp
 
 
 def remove_temp_files(video_path, images_path):
