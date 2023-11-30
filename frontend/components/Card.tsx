@@ -1,13 +1,17 @@
 export default function Card({
   onClick,
-  togglePlay,
+  activatePlayer,
+  isPlaying,
   thumbnail = "/defaultThumbnail.png",
+  videoId,
   fileName = "video.mp4",
   date = "01/01/2020",
   size = "0kb",
 }: {
-  onClick: (e: any) => void;
-  togglePlay: () => void;
+  onClick: () => void;
+  activatePlayer: () => void;
+  isPlaying: boolean;
+  videoId?: string;
   thumbnail?: string;
   fileName?: string;
   date?: string;
@@ -26,7 +30,14 @@ export default function Card({
       <div className="filesize border-2 p-2 ml-auto group-hover:border-black">
         {size}
       </div>
-      <button onClick={togglePlay}>
+      <button onClick={(e) => {
+        if (isPlaying){
+          e.stopPropagation();
+          onClick();
+          return;
+        }
+        e.stopPropagation();
+        activatePlayer()}}>
         Play
       </button>
     </button>
