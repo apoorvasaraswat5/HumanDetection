@@ -6,13 +6,13 @@ export default function RecentUpload({
     thumbnail = "/defaultThumbnail.png",
     fileName = "video.mp4",
     date = "01/01/2020",
-    size = "0kb",
+    processed = "Not Processed",
   }: {
     onClick: (event: any) => void;
     thumbnail?: string;
     fileName?: string;
     date?: string;
-    size?: string;
+    processed?: string;
   }) {
     thumbnail = 'http://127.0.0.1:8000/download?file_path=' + encodeURIComponent(thumbnail);
     return (
@@ -32,7 +32,7 @@ export default function RecentUpload({
                 </Col>
                 <Col className="items-center">
                     <div className="filesize border-2 p-2 ml-auto group-hover:border-black">
-                        {size}
+                        {processed}
                     </div>
                 </Col>
             </Row>

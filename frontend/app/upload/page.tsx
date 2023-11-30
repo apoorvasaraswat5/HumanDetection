@@ -8,7 +8,7 @@ import axios from "axios";
 interface Video {
   name: string;
   date: string;
-  size: number;
+  processed: string;
   thumbnail_path: string;
 }
 
@@ -30,12 +30,12 @@ export default function page() {
     })
     .then(res => res.json())
     .then(body => {
-        body.data.forEach((video: { filename: string; created_at: string, user_id: number, thumbnail_path: string }) => 
+        body.data.forEach((video: { filename: string; created_at: string, user_id: number, thumbnail_path: string, audio_results: any}) => 
         {
           vals.push({
             "name":video.filename,
             "date":video.created_at,
-            "size":0,
+            "processed":video.audio_results === null ? 'Not Processed':'Processed',
             "thumbnail_path":video.thumbnail_path
           });
         });
@@ -59,7 +59,7 @@ export default function page() {
       return {
         name: file.name,
         date: file.lastModifiedDate.toUTCString(),
-        size: file.size,
+        processed: 'Not Processed',
         status: "0%",
         thumbnail_path: ""
       }
@@ -191,7 +191,7 @@ export default function page() {
                 recentVideos.sort((a,b) =>{
                   return new Date(b.date).getTime() - new Date(a.date).getTime();
                 }).map((video) => {
-                  return <RecentUpload onClick={handleClick} fileName={video.name} size={video.size + ' GB'} date={video.date} key={video.name} thumbnail={video.thumbnail_path}/>;
+                  return <RecentUpload onClick={handleClick} fileName={video.name} processed={video.processed} date={video.date} key={video.name} thumbnail={video.thumbnail_path}/>;
                 })
               }
           </div>
@@ -218,13 +218,13 @@ export default function page() {
             <div className="bg-black w-full">
               {
                 currentUpload ? (
-                  <CurrentUpload onClick={handleClick} fileName={currentUpload.name} size={currentUpload.size + ' GB'} date={currentUpload.date} key={currentUpload.name} status={currentUpload.status}/>
+                  <CurrentUpload onClick={handleClick} fileName={currentUpload.name} date={currentUpload.date} key={currentUpload.name} status={currentUpload.status}/>
                 ):(null)
               }
               {
                 allUploads ? (
                   allUploads.map((video) => {
-                    return <CurrentUpload onClick={handleClick} fileName={video.name} size={video.size + ' GB'} date={video.date} key={video.name} status={video.status}/> 
+                    return <CurrentUpload onClick={handleClick} fileName={video.name} date={video.date} key={video.name} status={video.status}/> 
                   })
                 ):(null)
               }
