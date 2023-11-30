@@ -1,18 +1,14 @@
 "use client"
-import Card from "@/components/Card";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/Dialog";
 import { useRef, useState, useEffect, useCallback } from "react";
 import style from 'app/upload/upload.module.css';
 import RecentUpload from "./components/RecentUpload";
-import { json } from "stream/consumers";
 import CurrentUpload from "./components/CurrentUpload";
 import axios from "axios";
-import { stat } from "fs";
 
 interface Video {
   name: string;
   date: string;
-  size: number;
+  processed: string;
   thumbnail_path: string;
 }
 
@@ -23,7 +19,7 @@ interface VideoUpload extends Video{
 export default function page() {
 
   const [recentVideos, setRecentVideos] = useState<Video[]>([]);
-  const [currentUpload, setCurrentUpload] = useState<VideoUpload>(null);
+  const [currentUpload, setCurrentUpload] = useState<VideoUpload | null>(null);
   const [allUploads, setAllUploads] = useState<VideoUpload[]>([]);
 
   const getRecent = () => {
@@ -34,12 +30,12 @@ export default function page() {
     })
     .then(res => res.json())
     .then(body => {
-        body.data.forEach((video: { filename: string; created_at: string, user_id: number, thumbnail_path: string }) => 
+        body.data.forEach((video: { filename: string; created_at: string, user_id: number, thumbnail_path: string, audio_results: any}) => 
         {
           vals.push({
             "name":video.filename,
             "date":video.created_at,
-            "size":0,
+            "processed":video.audio_results === null ? 'Not Processed':'Processed',
             "thumbnail_path":video.thumbnail_path
           });
         });
@@ -63,7 +59,7 @@ export default function page() {
       return {
         name: file.name,
         date: file.lastModifiedDate.toUTCString(),
-        size: file.size,
+        processed: 'Not Processed',
         status: "0%",
         thumbnail_path: ""
       }
@@ -75,9 +71,13 @@ export default function page() {
       onUploadProgress: progressEvent => {
         setCurrentUpload((currUpload) => {
           if(progressEvent.total){
-            currUpload.status = (Math.floor((progressEvent.loaded/progressEvent.total)*100)-1).toString() + '%';
+            if(currUpload){
+              currUpload.status = (Math.floor((progressEvent.loaded/progressEvent.total)*100)-1).toString() + '%';
+            }
           } else {
-            currUpload.status = 'UNK';
+            if(currUpload){
+              currUpload.status = 'UNK';
+            }
           }
           const newCurr = JSON.parse(JSON.stringify(currUpload))
           console.log(progressEvent.loaded)
@@ -90,14 +90,18 @@ export default function page() {
     if (res.data.status_code == 500){
       status = 'Error!'
       setCurrentUpload((currUpload) => {
-        currUpload.status = res.data.detail;
+        if(currUpload){
+          currUpload.status = res.data.detail;
+        }
         const newCurr = JSON.parse(JSON.stringify(currUpload))
         return newCurr;
       })      
     } else {
       status = '100%'
       setCurrentUpload((currUpload) => {
-        currUpload.status = "100%";
+        if(currUpload){
+          currUpload.status = "100%";
+        }
         const newCurr = JSON.parse(JSON.stringify(currUpload))
         return newCurr;
       })  
@@ -173,19 +177,21 @@ export default function page() {
   }
   return (
     <div className="main-content flex h-screen">
+        <a style={{color:'black'}} href="/">Home</a>
         <div className={style.topnav}>
-            <div className={style.selector}>
-                <div id="recent" className={recentIsActive ? style.active : ''} onClick={handleClick}>Recent</div>
-                <div id="upload" className={uploadIsActive ? style.active : ''} onClick={handleClick}>Upload</div>
-            </div>
-        </div>
+          <div className={style.selector}>
+              <a href='/'>Home</a>
+              <div id="recent" className={recentIsActive ? style.active : ''} onClick={handleClick}>Recent</div>
+              <div id="upload" className={uploadIsActive ? style.active : ''} onClick={handleClick}>Upload</div>
+          </div>
+      </div>
         {recentIsActive ?(
           <div id="recentlist" style={{marginTop: 40}} className="w-full">
               {
                 recentVideos.sort((a,b) =>{
                   return new Date(b.date).getTime() - new Date(a.date).getTime();
                 }).map((video) => {
-                  return <RecentUpload onClick={handleClick} fileName={video.name} size={video.size + ' GB'} date={video.date} key={video.name} thumbnail={video.thumbnail_path}/>;
+                  return <RecentUpload onClick={handleClick} fileName={video.name} processed={video.processed} date={video.date} key={video.name} thumbnail={video.thumbnail_path}/>;
                 })
               }
           </div>
@@ -212,13 +218,13 @@ export default function page() {
             <div className="bg-black w-full">
               {
                 currentUpload ? (
-                  <CurrentUpload onClick={handleClick} fileName={currentUpload.name} size={currentUpload.size + ' GB'} date={currentUpload.date} key={currentUpload.name} status={currentUpload.status}/>
+                  <CurrentUpload onClick={handleClick} fileName={currentUpload.name} date={currentUpload.date} key={currentUpload.name} status={currentUpload.status}/>
                 ):(null)
               }
               {
                 allUploads ? (
                   allUploads.map((video) => {
-                    return <CurrentUpload onClick={handleClick} fileName={video.name} size={video.size + ' GB'} date={video.date} key={video.name} status={video.status}/> 
+                    return <CurrentUpload onClick={handleClick} fileName={video.name} date={video.date} key={video.name} status={video.status}/> 
                   })
                 ):(null)
               }

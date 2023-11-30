@@ -12,9 +12,9 @@
     .topnav div.selector {
         margin: auto;
         display: grid;
-        grid-template-columns: 50% 50%;
+        grid-template-columns: 33% 33% 33%;
         background-color: #ddd;
-        width: 10%;
+        width: 15%;
         height: 40px;
         border-radius: 20px;
     }
@@ -23,6 +23,13 @@
             color: #333;
             font-size: 75%;
             line-height: 40px;
+        }
+
+        .selector a{
+            color: #333;
+            font-size: 75%;
+            line-height: 40px;
+            text-decoration: none;
         }
 
         .selector div.active {

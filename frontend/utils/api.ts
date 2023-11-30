@@ -1,39 +1,44 @@
-import { createClient } from '@supabase/supabase-js';
+const supabase_url = 'https://kwdmufkexqqxupbctksg.supabase.co/storage/v1/object/public/human-detection-video-files/';
+export const fetchData = async (videoId=0): Promise<getAllVideosResponse> => {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/fetchData?user_id=${videoId}`);
+  const json : any = await res.json();
+  const data: getAllVideosResponse = 
+    json.data.map((x : any, index : any) =>{
+      return {
+        id: index.toString(),
+        title: x.filename,
+        size: '0MB',
+        dateCreated: x.created_at.split('T')[0],
+        thumbnail: `${supabase_url}${x.thumbnail_path}`,
+      }
+    })
+    return data;
+};
 
-// Initialize Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY || "";
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-export const fetchImage = async (path: string, bucket='public/demo'): Promise<Blob | null> => {
-  try {
-    const { data, error } = await supabase.storage.from(bucket).download(path);
-    if (error) {
-      throw error;
-    }
-
-    if (data) {
-      return data as any;
-    }
-
-    return null;
-  } catch (error) {
-    console.error('Error fetching image:', error);
-    return null;
+export const fetchVideoArtifacts = async (videoId: string): Promise<VideoArtifacts> => {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/fetchData?user_id=0`);
+  const json : any = await res.json();
+  const data = json.data[Number(videoId)];
+  console.log(data)
+  return {
+    videoURL: `${supabase_url}${data?.video_path}`,
+    //TODO: fix this
+    peopleDetectedFrames: !data.image_path ? [] : data.image_path.map((x: string, index: number) => {
+      return {
+        thumbnail: `${supabase_url}${x}`,
+        timestamp: `00:00:${(index * 10 % 5).toString().padStart(2,'0')}` //Simulates timestamp
+      }
+    }),
+    distinctPeopleDetected: [],
+    voiceDetectedFrames: [],
   }
 };
 
-// // Usage example
-// const fetchAndDisplayImage = async () => {
-//   const imagePath = 'path/to/your/image.png';
-//   const imageBlob = await fetchImage(imagePath);
 
-//   if (imageBlob) {
-//     const objectURL = URL.createObjectURL(imageBlob);
-//     // Now you can use this objectURL to display the image
-//   }
-// };
-
+export type FetchDataResponse = {
+  message: string;
+  data: any;
+}
 export type getAllVideosResponse = VideoResponse[];
 export type VideoResponse = {
   id: string;

@@ -25,7 +25,6 @@ def get_supabase():
     return supabase
 
 
-
 def upload_file(file):
     uuid_val = uuid.uuid4()
     s3_key_video = f"videos/{file.filename}_{uuid_val}"
