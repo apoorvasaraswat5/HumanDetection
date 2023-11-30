@@ -70,18 +70,27 @@ def whisper_diarization(filename: str, distil: bool = False):
             model="openai/whisper-base",
         )
 
+    sentiment_pipeline = pipeline(
+        "text-classification",
+        model="cardiffnlp/twitter-roberta-base-sentiment-latest",
+        torch_dtype=torch_dtype,
+        device=device,
+    )
+
     res = []
 
     for turn, _, speaker in outputs.itertracks(yield_label=True):
         # get segment based on turn.start and turn.end from the original file
         segment = extract_audio_segment(filename, turn.start, turn.end)
         text = asr_pipeline(segment)["text"]
+        sentiment = sentiment_pipeline(segment)[0]["label"]
         print(
             f"{speaker} {np.round(turn.start, 2)}:{np.round(turn.end, 2)}",
             text,
+            sentiment,
         )
 
-        res.append([turn.start, turn.end, speaker, text])
+        res.append([turn.start, turn.end, speaker, text, sentiment])
     # delete temp files
     for f in os.listdir("temp"):
         os.remove(os.path.join("temp", f))
