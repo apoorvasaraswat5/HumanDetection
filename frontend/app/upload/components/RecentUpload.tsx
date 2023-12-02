@@ -23,16 +23,28 @@ export default function RecentUpload({
     let date_obj = new Date(date);
     let videoArtifacts = {
       videoURL:video_path,
-      peopleDetectedFrames: image_path? image_path.map((x: string, index: number) => {
-      return {
-        thumbnail: 'http://127.0.0.1:8000/download?file_path=' + encodeURIComponent(x),
-        timestamp: `00:00:${(index * 10 % 5).toString().padStart(2,'0')}` //Simulates timestamp
+      peopleDetectedFrames: image_path? image_path.map((x: any, index: number) => {
+      try{
+        x = JSON.parse(x);
+        let time = x.timestamp;
+        const hours = Math.floor(time / 3600);
+        time %= 3600;
+        const minutes = Math.floor(time / 60);
+        const seconds = time % 60;
+        return {        
+          thumbnail: 'http://127.0.0.1:8000/download?file_path=' + encodeURIComponent(x.path),
+          timestamp: `${(hours).toString().padStart(2,'0')}:${(minutes).toString().padStart(2,'0')}:${(seconds).toString().padStart(2,'0')}` //Simulates timestamp
+        }
+      } catch {
+        return {        
+          thumbnail: 'http://127.0.0.1:8000/download?file_path=' + encodeURIComponent(x),
+          timestamp: `00:00:${(index * 10 % 5).toString().padStart(2,'0')}` //Simulates timestamp
+        }
       }
-    }):null,
-    distinctPeopleDetected: [],
-    voiceDetectedFrames: [],
-  }
-  console.log(videoArtifacts)
+      }):null,
+      distinctPeopleDetected: [],
+      voiceDetectedFrames: [],
+    }
     return (
       <button
         onClick={onClick(videoArtifacts)}
