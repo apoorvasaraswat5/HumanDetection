@@ -96,6 +96,17 @@ async def upload_file(file: UploadFile):
     try:
         raw_data = utils.upload_file(file)
         data = raw_data[1][0]
+        
+        file.file.seek(0)
+        temp_wav_path,temp_video = utils.extract_audio(file.file)
+        file_path = data['video_path']
+        audio_results = whisper_diarization(temp_wav_path)
+        
+        os.remove(temp_video)
+        os.remove(temp_wav_path)
+    
+        data['audio_results'] = audio_results
+        utils.upload_audio(audio_results,file_path)
 
     except Exception as e:
         return HTTPException(
@@ -160,13 +171,11 @@ def process_video(file_path):
     video = utils.download_file_by_path(file_path)
     temp_wav_path,temp_video_path = utils.extract_audio(video)
 
-    audio_results = whisper_diarization(temp_wav_path)
-    utils.upload_audio(audio_results,file_path)
     video_results = detect_person(temp_video_path,file_path)
 
     os.remove(temp_wav_path)
     os.remove(temp_video_path)
-    return {"audio": audio_results, "video": video_results}
+    return {"video": video_results}
     
     
 
