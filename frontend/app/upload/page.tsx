@@ -3,13 +3,15 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import style from 'app/upload/upload.module.css';
 import RecentUpload from "./components/RecentUpload";
 import CurrentUpload from "./components/CurrentUpload";
+import VideoPage from "@/components/VideoPage";
 import axios from "axios";
 
 interface Video {
   name: string;
   date: string;
-  size: number;
+  processed: string;
   thumbnail_path: string;
+  video_path: string;
 }
 
 interface VideoUpload extends Video{
@@ -30,13 +32,21 @@ export default function page() {
     })
     .then(res => res.json())
     .then(body => {
-        body.data.forEach((video: { filename: string; created_at: string, user_id: number, thumbnail_path: string }) => 
+        body.data.forEach((video: any) => 
         {
+          let process = []
+          if(video.audio_results){
+            process.push('Audio')
+          }
+          if(video.image_path){
+            process.push('Video')
+          }
           vals.push({
             "name":video.filename,
             "date":video.created_at,
-            "size":0,
-            "thumbnail_path":video.thumbnail_path
+            "processed":process.length === 0 ? 'Not Processed':process.join(', '),
+            "thumbnail_path":video.thumbnail_path,
+            "video_path":video.video_path
           });
         });
         setRecentVideos(() => vals);
@@ -59,9 +69,10 @@ export default function page() {
       return {
         name: file.name,
         date: file.lastModifiedDate.toUTCString(),
-        size: file.size,
+        processed: 'Not Processed',
         status: "0%",
-        thumbnail_path: ""
+        thumbnail_path: "",
+        video_path: ""
       }
     })
     const res = await axios.post('http://127.0.0.1:8000/upload',formData, {
@@ -125,20 +136,35 @@ export default function page() {
 
   const [uploadIsActive, setUploadIsActive] = useState(false);
   const [recentIsActive, setRecentIsActive] = useState(true);
+  const [videoPlayerActive, setVideoPlayerActive] = useState(false);
+  const [videoPath, setVideoPath] = useState("");
+  const [sortBy, setSortBy] = useState("");
+  const [asc, setAscDesc] = useState(false);
 
   const handleClick = (event: any) => {
     const target = event.target.id;
     if(target=='upload'){
       setUploadIsActive(current => true);
       setRecentIsActive(current => false);
+      setVideoPlayerActive(current => false);
     }else if(target=='recent'){
       setUploadIsActive(current => false);
       setRecentIsActive(current => true);
+      setVideoPlayerActive(current => false);
       getRecent();
     }else{
       console.log('TO BE IMPLEMENTED');
     }
   };
+
+  const startVideo = (video_path: string) => {
+    return (event: any) => {
+      setUploadIsActive(current => false);
+      setRecentIsActive(current => false);
+      setVideoPlayerActive(current => true);
+      setVideoPath(video_path);
+    }
+  }
 
   const [highlight, setHighlight] = useState(false);
   const fileDragHighlight = (event: any) => {
@@ -177,21 +203,45 @@ export default function page() {
   }
   return (
     <div className="main-content flex h-screen">
-        <a style={{color:'black'}} href="/">Home</a>
         <div className={style.topnav}>
           <div className={style.selector}>
               <a href='/'>Home</a>
-              <div id="recent" className={recentIsActive ? style.active : ''} onClick={handleClick}>Recent</div>
+              <div id="recent" className={recentIsActive ? style.active : 'border-black border-x'} onClick={handleClick}>Recent</div>
               <div id="upload" className={uploadIsActive ? style.active : ''} onClick={handleClick}>Upload</div>
           </div>
       </div>
+        {videoPlayerActive ?(
+            <div className="content w-full flex flex-col p-20 bg-white mt-[50px]">
+              <VideoPage src={videoPath}/>
+            </div>
+        ):(
+          null
+        )}
         {recentIsActive ?(
           <div id="recentlist" style={{marginTop: 40}} className="w-full">
+            <form className="my-10">
+                <span className="ml-96">Sort By</span>
+                <select defaultValue={'time'} onChange={(e) => setSortBy(current => e.target.value)}>
+                  <option value="time">Timestamp</option>
+                  <option value="title">Title</option>
+                  <option value="processed">Processed</option>
+                </select>
+              
+                <span className="ml-96">Sort By</span>
+                <select defaultValue={'descending'} onChange={(e) => setAscDesc(e.target.value === 'ascending')}>
+                  <option value="ascending">Ascending</option>
+                  <option value="descending">Descending</option>
+                </select>
+            </form>
               {
                 recentVideos.sort((a,b) =>{
-                  return new Date(b.date).getTime() - new Date(a.date).getTime();
+                  if(asc){
+                    return new Date(a.date).getTime() - new Date(b.date).getTime();
+                  } else {
+                    return new Date(b.date).getTime() - new Date(a.date).getTime();
+                  }
                 }).map((video) => {
-                  return <RecentUpload onClick={handleClick} fileName={video.name} size={video.size + ' GB'} date={video.date} key={video.name} thumbnail={video.thumbnail_path}/>;
+                  return <RecentUpload onClick={startVideo} fileName={video.name} processed={video.processed} date={video.date} key={video.video_path} thumbnail={video.thumbnail_path} video_path={video.video_path}/>;
                 })
               }
           </div>
@@ -218,13 +268,13 @@ export default function page() {
             <div className="bg-black w-full">
               {
                 currentUpload ? (
-                  <CurrentUpload onClick={handleClick} fileName={currentUpload.name} size={currentUpload.size + ' GB'} date={currentUpload.date} key={currentUpload.name} status={currentUpload.status}/>
+                  <CurrentUpload onClick={handleClick} fileName={currentUpload.name} date={currentUpload.date} key={currentUpload.name} status={currentUpload.status}/>
                 ):(null)
               }
               {
                 allUploads ? (
                   allUploads.map((video) => {
-                    return <CurrentUpload onClick={handleClick} fileName={video.name} size={video.size + ' GB'} date={video.date} key={video.name} status={video.status}/> 
+                    return <CurrentUpload onClick={handleClick} fileName={video.name} date={video.date} key={video.name} status={video.status}/> 
                   })
                 ):(null)
               }
