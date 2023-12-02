@@ -12,12 +12,12 @@ export default function Home() {
   const [currentVideoArtifacts, setcurrentVideoArtifacts] = useState<VideoArtifacts>({} as any)
   const [isPlaying, setIsPlaying] = useState(false);
 
-  const togglePlay = () => {
-    setIsPlaying(!isPlaying);
+  const activatePlayer = () => {
+    setIsPlaying(true);
   }
-  const onSidebarClick = (currentVideo: string) => (e: any) => {
-    e.stopPropagation();
+  const onSidebarClick = (currentVideo: string) => () => {
     setcurrentVideo(currentVideo);
+    setIsPlaying(false);
   };
   // useEffect(() => {
   //   const fetchVideos = async () => {
@@ -51,10 +51,21 @@ export default function Home() {
     getVideoArtifacts();
   }, [Videos, currentVideo])
   return (
+    <>
+    <div className="navbar justify-between flex bg-gray-300 text-gray-900">
+        <div></div>
+        <div className="gap-10">
+        <a className=""href="/">Home</a>
+        <a href="upload">
+          Upload
+        </a>
+        </div>
+        <a className="">Login</a>
+      </div>
     <div className="main-content flex h-screen">
       <div className="sidebar w-1/4 space-y-3 bg-gray-300 overflow-scroll">
         {Videos.map((video) => {
-          return <Card onClick={onSidebarClick(video.id)} togglePlay={togglePlay} fileName={video.title} key={video.id} size={video.size} thumbnail={video.thumbnail} date={video.dateCreated}/>;
+          return <Card onClick={onSidebarClick(video.id)} activatePlayer={activatePlayer} isPlaying={isPlaying} fileName={video.title} key={video.id} size={video.size} thumbnail={video.thumbnail} date={video.dateCreated}/>;
         })}
       </div>
       <div className="content w-3/4 flex flex-col p-2 bg-white">
@@ -65,5 +76,8 @@ export default function Home() {
       </div>
       
     </div>
+    </>
+    
+    
   );
 }

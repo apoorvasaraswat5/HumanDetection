@@ -27,7 +27,7 @@ const videoOptions = {
     }
   }
   return (
-    <div className="main-content flex flex-col h-2/3">
+    <div className="main-content flex flex-col h-2/3 ">
         <VideoPlayer
         ref={videoRef}
         setVideoDuration={setVideoDuration}
