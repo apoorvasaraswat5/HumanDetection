@@ -25,14 +25,14 @@ export const fetchVideoArtifacts = async (videoId: string): Promise<VideoArtifac
     //TODO: fix this
     peopleDetectedFrames: !data.image_path ? [] : data.image_path.map((x: string, index: number) => {
       try{
-        x = JSON.parse(x);
-        let time = x.timestamp;
+        const image = JSON.parse(x);
+        let time = image.timestamp;
         const hours = Math.floor(time / 3600);
         time %= 3600;
         const minutes = Math.floor(time / 60);
         const seconds = time % 60;
         return {        
-          thumbnail: 'http://127.0.0.1:8000/download?file_path=' + encodeURIComponent(x.path),
+          thumbnail: 'http://127.0.0.1:8000/download?file_path=' + encodeURIComponent(image.path),
           timestamp: `${(hours).toString().padStart(2,'0')}:${(minutes).toString().padStart(2,'0')}:${(seconds).toString().padStart(2,'0')}` //Simulates timestamp
         }
       } catch {
