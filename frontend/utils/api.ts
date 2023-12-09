@@ -50,7 +50,7 @@ export const fetchVideoArtifacts = async (videoId: string): Promise<VideoArtifac
       const minutes = Math.floor(time / 60);
       const seconds = time % 60;
       return {        
-        transcript: x[3],
+        transcript: `${x[2]}: ${x[3]}`,
         timestamp: `${(hours).toString().padStart(2,'0')}:${(minutes).toString().padStart(2,'0')}:${(seconds).toString().padStart(2,'0')}` //Simulates timestamp
       }
     }),
