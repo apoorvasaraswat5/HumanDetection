@@ -24,9 +24,10 @@ export const fetchVideoArtifacts = async (videoId: string): Promise<VideoArtifac
     videoURL: `${supabase_url}${data?.video_path}`,
     //TODO: fix this
     peopleDetectedFrames: !data.image_path ? [] : data.image_path.map((x: string, index: number) => {
+      const {path, timestamp} = JSON.parse(x);
       return {
-        thumbnail: `${supabase_url}${x}`,
-        timestamp: `00:00:${(index * 10 % 5).toString().padStart(2,'0')}` //Simulates timestamp
+        thumbnail: `${supabase_url}${path}`,
+        timestamp: new Date(timestamp * 1000).toISOString().split('T')[0],
       }
     }),
     distinctPeopleDetected: [],
@@ -48,10 +49,8 @@ export type VideoResponse = {
   thumbnail: string;
 }
 
-export type PeopleDetectedFrame = {
-  thumbnail: string;
-  timestamp: string;
-}
+export type PeopleDetectedFrame = [number, number, string, string]
+
 export type VoiceDetectedFrame = {
   transcript: string;
   timestamp: string;
