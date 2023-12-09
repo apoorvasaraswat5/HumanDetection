@@ -43,7 +43,17 @@ export const fetchVideoArtifacts = async (videoId: string): Promise<VideoArtifac
       }
     }),
     distinctPeopleDetected: [],
-    voiceDetectedFrames: [],
+    voiceDetectedFrames: !data.audio_results ? [] : data.audio_results.audio.map((x: any, index: number) => {
+      let time = x[0];
+      const hours = Math.floor(time / 3600);
+      time %= 3600;
+      const minutes = Math.floor(time / 60);
+      const seconds = time % 60;
+      return {        
+        transcript: x[3],
+        timestamp: `${(hours).toString().padStart(2,'0')}:${(minutes).toString().padStart(2,'0')}:${(seconds).toString().padStart(2,'0')}` //Simulates timestamp
+      }
+    }),
   }
 };
 

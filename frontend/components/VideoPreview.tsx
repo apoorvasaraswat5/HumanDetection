@@ -23,7 +23,7 @@ export default function VideoPreview({currentVideoArtifacts} : {currentVideoArti
         <h2 className="text-2xl font-bold tracking-tight text-gray-900">
           Audio
         </h2>
-        <div className="flex flex-row p-5 space-x-5">
+        <div className="flex flex-row p-5 space-x-5 overflow-scroll">
           {
             currentVideoArtifacts.voiceDetectedFrames?.map((frame) => {
               return <TranscriptCard content={frame.transcript} key={frame.timestamp}/>
