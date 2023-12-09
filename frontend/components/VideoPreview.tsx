@@ -1,5 +1,6 @@
 import { VideoArtifacts, VoiceDetectedFrame } from "@/utils/api";
 import TranscriptCard from "./TranscriptCard";
+import AudioTranscript from "./AudioTranscript";
 
 export default function VideoPreview({
   currentVideoArtifacts,
@@ -24,14 +25,7 @@ export default function VideoPreview({
         }) || "No images detected"}
       </div>
       <h2 className="text-2xl font-bold tracking-tight text-gray-900">Audio</h2>
-      <div className="h-screen p-4 text-gray-900">
-        {currentVideoArtifacts.voiceDetectedFrames?.reduce(
-          (acc: string, frame: VoiceDetectedFrame) => {
-            return acc + `${frame.speaker}: ${frame.transcript}\n`;
-          },
-          ""
-        ) || "No audio detected"}
-      </div>
+      <AudioTranscript currentVideoArtifacts={currentVideoArtifacts} />
       {/* <div className="flex flex-row p-5 space-x-5">
         {currentVideoArtifacts.voiceDetectedFrames?.map((frame) => {
           return (
