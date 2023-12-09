@@ -27,7 +27,8 @@ export const fetchVideoArtifacts = async (videoId: string): Promise<VideoArtifac
       const {path, timestamp} = JSON.parse(x);
       return {
         thumbnail: `${supabase_url}${path}`,
-        timestamp: new Date(timestamp * 1000).toISOString().split('T')[0],
+        // timestamp: new Date(timestamp * 1000).toISOString().split('T')[0],
+        timestamp: timestamp,
       }
     }),
     voiceDetectedFrames:  data.audio_results?.map((x: any) => {

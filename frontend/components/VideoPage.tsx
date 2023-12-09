@@ -33,20 +33,24 @@ export default function VideoPage({
     }
   };
   return (
-    <div className="main-content flex flex-col h-2/3 ">
-      <VideoPlayer
-        ref={videoRef}
-        setVideoDuration={setVideoDuration}
-        setCurrentTime={setCurrentTime}
-        options={videoOptions}
-      />
-      <CustomSeekBar
-        duration={videoDuration}
-        currentTime={currentTime}
-        onSeek={setPlayerTime}
-        markers={VideoArtifacts?.peopleDetectedFrames}
-      />
-      <AudioTranscript currentVideoArtifacts={VideoArtifacts} />
-    </div>
+    <>
+      <div className="main-content flex flex-col h-2/3">
+        <VideoPlayer
+          ref={videoRef}
+          setVideoDuration={setVideoDuration}
+          setCurrentTime={setCurrentTime}
+          options={videoOptions}
+        />
+        <CustomSeekBar
+          duration={videoDuration}
+          currentTime={currentTime}
+          onSeek={setPlayerTime}
+          markers={VideoArtifacts?.peopleDetectedFrames}
+        />
+      </div>
+      <div className="mt-10">
+        <AudioTranscript currentVideoArtifacts={VideoArtifacts} />
+      </div>
+    </>
   );
 }
