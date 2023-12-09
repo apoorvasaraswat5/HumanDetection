@@ -30,8 +30,15 @@ export const fetchVideoArtifacts = async (videoId: string): Promise<VideoArtifac
         timestamp: new Date(timestamp * 1000).toISOString().split('T')[0],
       }
     }),
-    distinctPeopleDetected: [],
-    voiceDetectedFrames: [],
+    voiceDetectedFrames:  data.audio_results?.map((x: any) => {
+      return {
+        startTime: x[0],
+        endTime: x[1],
+        speaker: x[2],
+        transcript: x[3],
+        sentiment: x[4],
+      }
+    }),
   }
 };
 
@@ -49,19 +56,20 @@ export type VideoResponse = {
   thumbnail: string;
 }
 
-export type PeopleDetectedFrame = [number, number, string, string]
-
-export type VoiceDetectedFrame = {
-  transcript: string;
+export type PeopleDetectedFrame = {
+  thumbnail: string;
   timestamp: string;
 }
-export type DistinctPersonDetected = {
-  thumbnail: string;
-  personId: string;
+
+export type VoiceDetectedFrame = {
+  startTime: string;
+  endTime: string;
+  speaker: string;
+  transcript: string;
+  sentiment: string;
 }
 export type VideoArtifacts = {
   videoURL: string;
   peopleDetectedFrames: PeopleDetectedFrame[];
   voiceDetectedFrames: VoiceDetectedFrame[];
-  distinctPeopleDetected: DistinctPersonDetected[];
 }
