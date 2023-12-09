@@ -4,6 +4,7 @@ import style from 'app/upload/upload.module.css';
 import RecentUpload from "./components/RecentUpload";
 import CurrentUpload from "./components/CurrentUpload";
 import VideoPage from "@/components/VideoPage";
+import { VideoArtifacts, fetchData, fetchVideoArtifacts, getAllVideosResponse } from "@/utils/api";
 import axios from "axios";
 
 interface Video {
@@ -12,6 +13,7 @@ interface Video {
   processed: string;
   thumbnail_path: string;
   video_path: string;
+  image_path: string[];
 }
 
 interface VideoUpload extends Video{
@@ -23,6 +25,7 @@ export default function page() {
   const [recentVideos, setRecentVideos] = useState<Video[]>([]);
   const [currentUpload, setCurrentUpload] = useState<VideoUpload | null>(null);
   const [allUploads, setAllUploads] = useState<VideoUpload[]>([]);
+  const [currentVideoArtifacts, setcurrentVideoArtifacts] = useState<VideoArtifacts>({} as any)
 
   const getRecent = () => {
     let vals: any[] = []
@@ -46,7 +49,8 @@ export default function page() {
             "date":video.created_at,
             "processed":process.length === 0 ? 'Not Processed':process.join(', '),
             "thumbnail_path":video.thumbnail_path,
-            "video_path":video.video_path
+            "video_path":video.video_path,
+            "image_path":video.image_path
           });
         });
         setRecentVideos(() => vals);
@@ -72,7 +76,8 @@ export default function page() {
         processed: 'Not Processed',
         status: "0%",
         thumbnail_path: "",
-        video_path: ""
+        video_path: "",
+        image_path: []
       }
     })
     const res = await axios.post('http://127.0.0.1:8000/upload',formData, {
@@ -157,12 +162,13 @@ export default function page() {
     }
   };
 
-  const startVideo = (video_path: string) => {
+  const startVideo = (video: VideoArtifacts) => {
     return (event: any) => {
       setUploadIsActive(current => false);
       setRecentIsActive(current => false);
       setVideoPlayerActive(current => true);
-      setVideoPath(video_path);
+      setVideoPath(current => video.videoURL);
+      setcurrentVideoArtifacts(current => video)
     }
   }
 
@@ -212,7 +218,7 @@ export default function page() {
       </div>
         {videoPlayerActive ?(
             <div className="content w-full flex flex-col p-20 bg-white mt-[50px]">
-              <VideoPage src={videoPath}/>
+              <VideoPage src={videoPath} VideoArtifacts={currentVideoArtifacts}/>
             </div>
         ):(
           null
@@ -241,7 +247,7 @@ export default function page() {
                     return new Date(b.date).getTime() - new Date(a.date).getTime();
                   }
                 }).map((video) => {
-                  return <RecentUpload onClick={startVideo} fileName={video.name} processed={video.processed} date={video.date} key={video.video_path} thumbnail={video.thumbnail_path} video_path={video.video_path}/>;
+                  return <RecentUpload onClick={startVideo} fileName={video.name} processed={video.processed} date={video.date} key={video.video_path} thumbnail={video.thumbnail_path} video_path={video.video_path} image_path={video.image_path}/>;
                 })
               }
           </div>
