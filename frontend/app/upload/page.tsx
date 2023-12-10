@@ -102,7 +102,6 @@ export default function page() {
         })
       }
     })
-    console.log(res)
     if (res.data.status_code == 500){
       status = 'Error!'
       setCurrentUpload((currUpload) => {
@@ -118,6 +117,10 @@ export default function page() {
         if(currUpload){
           currUpload.status = "100%";
         }
+        const video_path = res.data.data.video_path
+        fetch('http://127.0.0.1:8000/process?file_path=' + video_path, {
+          method: 'POST'
+        })
         const newCurr = JSON.parse(JSON.stringify(currUpload))
         return newCurr;
       })  
