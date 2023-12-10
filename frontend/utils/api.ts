@@ -21,16 +21,25 @@ export const fetchVideoArtifacts = async (videoId: string): Promise<VideoArtifac
   const data = json.data[Number(videoId)];
   console.log(data)
   return {
-    videoURL: `${supabase_url}${data?.video_path}`,
+    videoURL: `${supabase_url}${data?.output_video_path}`,
     //TODO: fix this
     peopleDetectedFrames: !data.image_path ? [] : data.image_path.map((x: string, index: number) => {
+      const {path, timestamp} = JSON.parse(x);
       return {
-        thumbnail: `${supabase_url}${x}`,
-        timestamp: `00:00:${(index * 10 % 5).toString().padStart(2,'0')}` //Simulates timestamp
+        thumbnail: `${supabase_url}${path}`,
+        // timestamp: new Date(timestamp * 1000).toISOString().split('T')[0],
+        timestamp: timestamp,
       }
     }),
-    distinctPeopleDetected: [],
-    voiceDetectedFrames: [],
+    voiceDetectedFrames:  data.audio_results?.audio?.map((x: any) => {
+      return {
+        startTime: x[0],
+        endTime: x[1],
+        speaker: x[2],
+        transcript: x[3],
+        sentiment: x[4],
+      }
+    }),
   }
 };
 
@@ -52,17 +61,16 @@ export type PeopleDetectedFrame = {
   thumbnail: string;
   timestamp: string;
 }
+
 export type VoiceDetectedFrame = {
+  startTime: string;
+  endTime: string;
+  speaker: string;
   transcript: string;
-  timestamp: string;
-}
-export type DistinctPersonDetected = {
-  thumbnail: string;
-  personId: string;
+  sentiment: string;
 }
 export type VideoArtifacts = {
   videoURL: string;
   peopleDetectedFrames: PeopleDetectedFrame[];
   voiceDetectedFrames: VoiceDetectedFrame[];
-  distinctPeopleDetected: DistinctPersonDetected[];
 }

@@ -94,6 +94,18 @@ async def upload_file(file: UploadFile):
         raw_data = utils.upload_file(file)
         data = raw_data[1][0]
 
+        file_path = data["video_path"]
+        video = utils.download_file_by_path(file_path)
+        temp_wav_path, temp_video = utils.extract_audio(video)
+
+        audio_results = whisper_diarization(temp_wav_path)
+
+        os.remove(temp_video)
+        os.remove(temp_wav_path)
+
+        data["audio_results"] = audio_results
+        utils.upload_audio(audio_results, file_path)
+
     except Exception as e:
         return HTTPException(
             status_code=500,
@@ -135,13 +147,32 @@ def process_video(file_path):
     video = utils.download_file_by_path(file_path)
     temp_wav_path, temp_video_path = utils.extract_audio(video)
 
-    audio_results = whisper_diarization(temp_wav_path)
-    utils.upload_audio(audio_results, file_path)
-    video_results = detect_person(temp_video_path, file_path)
+    video_results = detect_person(temp_video_path, file_path, temp_wav_path)
 
     os.remove(temp_wav_path)
     os.remove(temp_video_path)
-    return {"audio": audio_results, "video": video_results}
+    return {"video": video_results}
+
+
+@app.post("/diarize")
+def diarize(filename: str):
+    filename = convert_to_wav(filename)
+    diarization_pipeline = Pipeline.from_pretrained(
+        "pyannote/speaker-diarization-3.0",
+        use_auth_token=os.getenv("HF_KEY"),
+    )
+    outputs = diarization_pipeline(filename)
+
+    starts = []
+    ends = []
+    speakers = []
+
+    for turn, _, speaker in outputs.itertracks(yield_label=True):
+        starts.append(turn.start)
+        ends.append(turn.end)
+        speakers.append(speaker)
+
+    return [{"starts": starts}, {"ends": ends}, {"speakers": speakers}]
 
 
 @app.post("/transcribe")
@@ -150,15 +181,27 @@ def transcribe(filename: str):
 
 
 @app.post("/video")
-def detect_person(local_file_path: str, s3_key_video: str):
+def detect_person(local_file_path: str, s3_key_video: str, audio_path: str):
     # this needs s3_key_video to identify which video we need to add the output for
-    video_path, images_path = humanDetector(local_file_path)
+    video_path, images_path, faces_with_timestamp = humanDetector(local_file_path)
+    video_path = attach_audio_to_video(video_path, audio_path)
     raw_data = utils.upload_output_video_and_images(
-        video_path, images_path, s3_key_video
+        video_path, images_path, faces_with_timestamp, s3_key_video
     )
     data = raw_data[1][0]
     remove_temp_files(video_path, images_path)
     return {"output": data}
+
+
+def attach_audio_to_video(video_path, audio_path):
+    import moviepy.editor as mp
+
+    audio = mp.AudioFileClip(audio_path)
+    video = mp.VideoFileClip(video_path)
+    final = video.set_audio(audio)
+    output_path = video_path + "_with_audio.mp4"
+    final.write_videofile(output_path)
+    return output_path
 
 
 def humanDetector(local_file_path):
@@ -178,6 +221,7 @@ def humanDetector(local_file_path):
     # Initialize variables for face tracking
     faces = []
     face_id = 0
+    faces_with_timestamp = dict()
 
     # Create a VideoWriter object to save the output videos
     fourcc = cv2.VideoWriter_fourcc(*"XVID")
@@ -187,7 +231,7 @@ def humanDetector(local_file_path):
     if not os.path.exists("images"):
         os.mkdir("images")
 
-    output_video = cv2.VideoWriter(video_path, fourcc, 20.0, (640, 480))
+    output_video = cv2.VideoWriter(video_path, fourcc, 30.0, (640, 480))
 
     while cap.isOpened():
         ret, frame = cap.read()
@@ -197,6 +241,9 @@ def humanDetector(local_file_path):
 
         # Resize the frame for faster processing
         frame = cv2.resize(frame, (640, 480))
+        timestamp = (
+            cap.get(cv2.CAP_PROP_POS_MSEC) / 1000.0
+        )  # Convert milliseconds to seconds
         color_converted = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         pil_image = Image.fromarray(color_converted)
 
@@ -236,7 +283,9 @@ def humanDetector(local_file_path):
                 print("unique")
                 faces.append(face)
                 face_id += 1
-                cv2.imwrite(os.path.join("images", f"unique_face_{face_id}.jpg"), face)
+                path = f"unique_face_{face_id}.jpg"
+                cv2.imwrite(os.path.join("images", path), face)
+                faces_with_timestamp[path] = timestamp
 
         print("writing frame")
         # Write the frame to the output videos
@@ -246,7 +295,7 @@ def humanDetector(local_file_path):
     cap.release()
     output_video.release()
     cv2.destroyAllWindows()
-    return video_path, images_path
+    return video_path, images_path, faces_with_timestamp
 
 
 def remove_temp_files(video_path, images_path):
