@@ -49,14 +49,14 @@ def test_video(filename):
     Ensure that in /image_references, there is a folder with the same name as filename
     that holds the ground truth images
         Args:
-            filename - the name of the video file to be evaluated (.mp4)
+            filename - the name of the video file to be evaluated, WITH file extension (.mp4)
     """
 
     # grab just file name
     root, ext = os.path.splitext(filename)
 
     # run sample
-    # humanDetector("HumanDetection/dataset/video_files/" + filename, testing=True)
+    humanDetector("HumanDetection/dataset/video_files/" + filename, testing=True)
     # grab image folder locations
     image_folder = "images"
     truth_folder = "HumanDetection/dataset/images_references/" + root
@@ -74,7 +74,7 @@ def test_video(filename):
 
     # create combined images with new width and height
     combined_image = Image.new("RGB", (width * len(image_files), height))
-    combined_truth = Image.new("RGB", (width * len(image_files), height))
+    combined_truth = Image.new("RGB", (width * len(truth_files), height))
 
     # add images into combined images
     for i, image_file in enumerate(image_files):
@@ -115,12 +115,6 @@ def rttm_to_annotation(file, filename):
     return annotation
 
 
-def main():
-    # test_audio()
-    # visualize_output("sample2")
-    test_video("sample1.mp4")
-
-
 def visualize_output(filename: str):
     """
     Given a specific file, generate visual examples of performance
@@ -147,6 +141,12 @@ def visualize_output(filename: str):
             "HumanDetection/dataset/outputs/comparison_" + filename + ".csv",
             index=False,
         )
+
+
+def main():
+    # test_audio()
+    # visualize_output("sample3")
+    test_video("night_sample.mp4")
 
 
 if __name__ == "__main__":

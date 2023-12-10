@@ -1,0 +1,4 @@
+start_time,end_time,speaker,text,Hypothesis_start_time,Hypothesis_end_time,Hypothesis_speaker,Hypothesis_text
+1.16,2.1,SPEAKER_01,I can't hear you.,0.00849,0.84041,SPEAKER_00, I'm in love
+2.21,3.59,SPEAKER_01,"I'm good, I'm good.",1.34975,3.57385,SPEAKER_00, I can't hear you! I'm good! I'm good!
+,,,,4.16808,6.54499,SPEAKER_00," Give me, give me, give me, oh man"
