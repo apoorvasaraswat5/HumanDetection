@@ -34,6 +34,7 @@ app = FastAPI()
 
 origins = [
     "http://localhost:3000",
+    "http://localhost:3000/upload"
 ]
 
 app.add_middleware(

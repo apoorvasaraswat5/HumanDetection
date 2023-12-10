@@ -36,6 +36,7 @@ export const fetchVideoArtifacts = async (videoId: string): Promise<VideoArtifac
           timestamp: `${(hours).toString().padStart(2,'0')}:${(minutes).toString().padStart(2,'0')}:${(seconds).toString().padStart(2,'0')}` //Simulates timestamp
         }
       } catch {
+        // If using old format without timestamp available, provide mock timestamp
         return {        
           thumbnail: 'http://127.0.0.1:8000/download?file_path=' + encodeURIComponent(x),
           timestamp: `00:00:${(index * 10 % 5).toString().padStart(2,'0')}` //Simulates timestamp
@@ -53,7 +54,7 @@ export const fetchVideoArtifacts = async (videoId: string): Promise<VideoArtifac
         transcript: `${x[2]}: ${x[3]}`,
         timestamp: `${(hours).toString().padStart(2,'0')}:${(minutes).toString().padStart(2,'0')}:${(seconds).toString().padStart(2,'0')}` //Simulates timestamp
       }
-    }),
+    })
   }
 };
 
