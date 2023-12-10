@@ -97,9 +97,10 @@ async def upload_file(file: UploadFile):
         raw_data = utils.upload_file(file)
         data = raw_data[1][0]
         
-        file.file.seek(0)
-        temp_wav_path,temp_video = utils.extract_audio(file.file)
         file_path = data['video_path']
+        video = utils.download_file_by_path(file_path)
+        temp_wav_path,temp_video = utils.extract_audio(video)
+        
         audio_results = whisper_diarization(temp_wav_path)
         
         os.remove(temp_video)
