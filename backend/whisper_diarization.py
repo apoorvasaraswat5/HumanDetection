@@ -1,10 +1,16 @@
 from pyannote.audio import Pipeline
 from pydub import AudioSegment
-from pydub.playback import play
-from transformers import pipeline
+from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
 from utils import convert_to_wav
 import os
 import numpy as np
+import torch
+
+
+device = "cuda:0" if torch.cuda.is_available() else "cpu"
+
+print("Running on", device)
+torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
 
 
 # check if temp folder exists
@@ -25,7 +31,7 @@ def extract_audio_segment(input_file, start_time, end_time):
     return output_file
 
 
-def whisper_diarization(filename: str):
+def whisper_diarization(filename: str, distil: bool = False):
     filename = convert_to_wav(filename)
 
     diarization_pipeline = Pipeline.from_pretrained(
@@ -35,9 +41,40 @@ def whisper_diarization(filename: str):
 
     outputs = diarization_pipeline(filename)
 
-    asr_pipeline = pipeline(
-        "automatic-speech-recognition",
-        model="openai/whisper-base",
+    # uses distilwhisper
+    asr_pipeline = None
+
+    if distil:
+        model_id = "distil-whisper/distil-large-v2"
+        model = AutoModelForSpeechSeq2Seq.from_pretrained(
+            model_id,
+            torch_dtype=torch_dtype,
+            low_cpu_mem_usage=True,
+            use_safetensors=True,
+        )
+        model.to(device)
+
+        processor = AutoProcessor.from_pretrained(model_id)
+
+        asr_pipeline = pipeline(
+            "automatic-speech-recognition",
+            model=model,
+            tokenizer=processor.tokenizer,
+            feature_extractor=processor.feature_extractor,
+            torch_dtype=torch_dtype,
+            device=device,
+        )
+    else:
+        asr_pipeline = pipeline(
+            "automatic-speech-recognition",
+            model="openai/whisper-base",
+        )
+
+    sentiment_pipeline = pipeline(
+        "text-classification",
+        model="cardiffnlp/twitter-roberta-base-sentiment-latest",
+        torch_dtype=torch_dtype,
+        device=device,
     )
 
     res = []
@@ -46,12 +83,14 @@ def whisper_diarization(filename: str):
         # get segment based on turn.start and turn.end from the original file
         segment = extract_audio_segment(filename, turn.start, turn.end)
         text = asr_pipeline(segment)["text"]
+        sentiment = sentiment_pipeline(segment)[0]["label"]
         print(
             f"{speaker} {np.round(turn.start, 2)}:{np.round(turn.end, 2)}",
             text,
+            sentiment,
         )
 
-        res.append([turn.start, turn.end, speaker, text])
+        res.append([turn.start, turn.end, speaker, text, sentiment])
     # delete temp files
     for f in os.listdir("temp"):
         os.remove(os.path.join("temp", f))
