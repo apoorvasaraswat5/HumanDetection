@@ -1,22 +1,28 @@
 "use client";
 import { useRef, useState } from "react";
-import VideoPlayer from '@/components/VideoPlayer';
+import VideoPlayer from "@/components/VideoPlayer";
 import CustomSeekBar from "@/components/SeekBar";
 import { placeholderVideo } from "@/utils/api-mocks";
 import { VideoArtifacts } from "@/utils/api";
+import AudioTranscript from "./AudioTranscript";
 
-export default function VideoPage({src=placeholderVideo, VideoArtifacts} : {src?: string, VideoArtifacts?: VideoArtifacts}) {
-
-const videoOptions = {
+export default function VideoPage({
+  src = placeholderVideo,
+  VideoArtifacts,
+}: {
+  src?: string;
+  VideoArtifacts: VideoArtifacts;
+}) {
+  const videoOptions = {
     controls: true,
     fill: true,
     sources: [
-        {
-        src:src,
+      {
+        src: src,
         type: "video/mp4",
-        },
+      },
     ],
-    };
+  };
   const [currentTime, setCurrentTime] = useState(0);
   const [videoDuration, setVideoDuration] = useState(0);
   const videoRef = useRef(null);
@@ -25,15 +31,15 @@ const videoOptions = {
     if (videoRef?.current) {
       videoRef.current.currentTime = time;
     }
-  }
+  };
   return (
-    <div className="main-content flex flex-col h-2/3 ">
+    <>
+      <div className="main-content flex flex-col h-2/3">
         <VideoPlayer
-        ref={videoRef}
-        setVideoDuration={setVideoDuration}
-        setCurrentTime={setCurrentTime}
-        options={videoOptions}
-          
+          ref={videoRef}
+          setVideoDuration={setVideoDuration}
+          setCurrentTime={setCurrentTime}
+          options={videoOptions}
         />
         <CustomSeekBar
           duration={videoDuration}
@@ -41,6 +47,10 @@ const videoOptions = {
           onSeek={setPlayerTime}
           markers={VideoArtifacts?.peopleDetectedFrames}
         />
-    </div>
+      </div>
+      <div className="mt-10">
+        <AudioTranscript currentVideoArtifacts={VideoArtifacts} />
+      </div>
+    </>
   );
 }

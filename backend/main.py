@@ -173,7 +173,7 @@ def process_video(file_path):
     video = utils.download_file_by_path(file_path)
     temp_wav_path,temp_video_path = utils.extract_audio(video)
 
-    video_results = detect_person(temp_video_path,file_path)
+    video_results = detect_person(temp_video_path,file_path, temp_wav_path)
 
     os.remove(temp_wav_path)
     os.remove(temp_video_path)
@@ -209,13 +209,24 @@ def transcribe(filename: str):
 
 
 @app.post("/video")
-def detect_person(local_file_path: str, s3_key_video: str):
+def detect_person(local_file_path: str, s3_key_video: str, audio_path: str):
     # this needs s3_key_video to identify which video we need to add the output for
     video_path, images_path, faces_with_timestamp = humanDetector(local_file_path)
+    video_path = attach_audio_to_video(video_path, audio_path)
     raw_data = utils.upload_output_video_and_images(video_path, images_path, faces_with_timestamp, s3_key_video)
     data = raw_data[1][0]
     remove_temp_files(video_path, images_path)
     return {"output": data}
+
+
+def attach_audio_to_video(video_path, audio_path):
+    import moviepy.editor as mp
+    audio = mp.AudioFileClip(audio_path)
+    video = mp.VideoFileClip(video_path)
+    final = video.set_audio(audio)
+    output_path = video_path+"_with_audio.mp4"
+    final.write_videofile(output_path)
+    return output_path
 
 
 def humanDetector(local_file_path):
@@ -243,7 +254,7 @@ def humanDetector(local_file_path):
     if not os.path.exists("images"):
         os.mkdir("images")
 
-    output_video = cv2.VideoWriter(video_path, fourcc, 20.0, (640, 480))
+    output_video = cv2.VideoWriter(video_path, fourcc, 30.0, (640, 480))
 
     while cap.isOpened():
         ret, frame = cap.read()
