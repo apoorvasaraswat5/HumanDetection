@@ -21,7 +21,7 @@ export const fetchVideoArtifacts = async (videoId: string): Promise<VideoArtifac
   const data = json.data[Number(videoId)];
   console.log(data)
   return {
-    videoURL: `${supabase_url}${data?.video_path}`,
+    videoURL: `${supabase_url}${data?.output_video_path}`,
     //TODO: fix this
     peopleDetectedFrames: !data.image_path ? [] : data.image_path.map((x: string, index: number) => {
       const {path, timestamp} = JSON.parse(x);
@@ -31,7 +31,7 @@ export const fetchVideoArtifacts = async (videoId: string): Promise<VideoArtifac
         timestamp: timestamp,
       }
     }),
-    voiceDetectedFrames:  data.audio_results?.map((x: any) => {
+    voiceDetectedFrames:  data.audio_results?.audio?.map((x: any) => {
       return {
         startTime: x[0],
         endTime: x[1],
