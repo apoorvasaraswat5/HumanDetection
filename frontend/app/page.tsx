@@ -43,7 +43,6 @@ export default function Home() {
   useEffect(() => {
     const getData = async () => {
       const res = await fetchData();
-      console.log(res);
       setVideos(res);
     };
     getData();
