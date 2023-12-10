@@ -118,7 +118,7 @@ export default function page() {
           currUpload.status = "100%";
         }
         const video_path = res.data.data.video_path
-        fetch('http://127.0.0.1:8000/process?file_path=' + videoPath, {
+        fetch('http://127.0.0.1:8000/process?file_path=' + video_path, {
           method: 'POST'
         })
         const newCurr = JSON.parse(JSON.stringify(currUpload))
