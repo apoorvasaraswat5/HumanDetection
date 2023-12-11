@@ -165,13 +165,13 @@ export default function page() {
     }
   };
 
-  const startVideo = (video: VideoArtifacts) => {
-    return (event: any) => {
-      setUploadIsActive(current => false);
-      setRecentIsActive(current => false);
-      setVideoPlayerActive(current => true);
-      setVideoPath(current => video.videoURL);
-      setcurrentVideoArtifacts(current => video)
+  const startProcessing = (video_path: string) => { 
+    return () => {
+      if(confirm('Do you want to re-process ' + video_path.split('/')[1].split('_')[0] + '?')){
+        fetch('http://127.0.0.1:8000/process?file_path=' + video_path, {
+          method: 'POST'
+        })
+      }
     }
   }
 
@@ -250,7 +250,7 @@ export default function page() {
                     return new Date(b.date).getTime() - new Date(a.date).getTime();
                   }
                 }).map((video) => {
-                  return <RecentUpload onClick={startVideo} fileName={video.name} processed={video.processed} date={video.date} key={video.video_path} thumbnail={video.thumbnail_path} video_path={video.video_path} image_path={video.image_path}/>;
+                  return <RecentUpload onClick={startProcessing} fileName={video.name} processed={video.processed} date={video.date} key={video.video_path} thumbnail={video.thumbnail_path} video_path={video.video_path} image_path={video.image_path}/>;
                 })
               }
           </div>
