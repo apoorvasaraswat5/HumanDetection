@@ -146,7 +146,7 @@ export default function page() {
   const [recentIsActive, setRecentIsActive] = useState(true);
   const [videoPlayerActive, setVideoPlayerActive] = useState(false);
   const [videoPath, setVideoPath] = useState("");
-  const [sortBy, setSortBy] = useState("");
+  const [sortBy, setSortBy] = useState("time");
   const [asc, setAscDesc] = useState(false);
 
   const handleClick = (event: any) => {
@@ -244,11 +244,15 @@ export default function page() {
             </form>
               {
                 recentVideos.sort((a,b) =>{
-                  if(asc){
-                    return new Date(a.date).getTime() - new Date(b.date).getTime();
-                  } else {
-                    return new Date(b.date).getTime() - new Date(a.date).getTime();
+                  var value = new Date(a.date).getTime() - new Date(b.date).getTime();
+                  if(sortBy == 'time') {
+                    value = new Date(a.date).getTime() - new Date(b.date).getTime();
+                  } else if(sortBy == 'title') {
+                      value = b.name.localeCompare(a.name);
+                  } else if(sortBy == 'processed') {
+                    value = b.processed.localeCompare(a.processed);
                   }
+                  return asc ? value : -1 * value;
                 }).map((video) => {
                   return <RecentUpload onClick={startProcessing} fileName={video.name} processed={video.processed} date={video.date} key={video.video_path} thumbnail={video.thumbnail_path} video_path={video.video_path} image_path={video.image_path}/>;
                 })
