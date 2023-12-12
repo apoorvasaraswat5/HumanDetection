@@ -148,6 +148,7 @@ export default function page() {
   const [videoPath, setVideoPath] = useState("");
   const [sortBy, setSortBy] = useState("time");
   const [asc, setAscDesc] = useState(false);
+  const [filter, setFilter] = useState(false);
 
   const handleClick = (event: any) => {
     const target = event.target.id;
@@ -228,15 +229,17 @@ export default function page() {
         )}
         {recentIsActive ?(
           <div id="recentlist" style={{marginTop: 40}} className="w-full">
-            <form className="my-10">
-                <span className="ml-96">Sort By</span>
+            <form className="my-10 justify-center flex">
+                <span className="pl-32 pr-2">Contains Faces</span>
+                <input type="checkbox" onChange={(e) => setFilter(curr => e.target.checked)}/>
+                <span className="pl-32">Sort By</span>
                 <select defaultValue={'time'} onChange={(e) => setSortBy(current => e.target.value)}>
                   <option value="time">Timestamp</option>
                   <option value="title">Title</option>
                   <option value="processed">Processed</option>
                 </select>
               
-                <span className="ml-96">Sort By</span>
+                <span className="pl-32">Sort By</span>
                 <select defaultValue={'descending'} onChange={(e) => setAscDesc(e.target.value === 'ascending')}>
                   <option value="ascending">Ascending</option>
                   <option value="descending">Descending</option>
@@ -253,6 +256,11 @@ export default function page() {
                     value = b.processed.localeCompare(a.processed);
                   }
                   return asc ? value : -1 * value;
+                }).filter((video) =>{
+                  if(!filter){
+                    return true;
+                  }
+                  return video.image_path?.length > 0
                 }).map((video) => {
                   return <RecentUpload onClick={startProcessing} fileName={video.name} processed={video.processed} date={video.date} key={video.video_path} thumbnail={video.thumbnail_path} video_path={video.video_path} image_path={video.image_path}/>;
                 })
