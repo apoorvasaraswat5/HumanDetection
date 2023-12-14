@@ -13,7 +13,8 @@ import imutils
 from gotrue.errors import AuthApiError
 from utils import convert_to_wav
 from whisper_diarization import whisper_diarization
-from transformers import AutoFeatureExtractor, AutoModelForObjectDetection
+from transformers import AutoFeatureExtractor, AutoModelForObjectDetection, pipeline
+from pyannote.audio import Pipeline
 from PIL import Image
 
 

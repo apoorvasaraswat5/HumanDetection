@@ -146,8 +146,9 @@ export default function page() {
   const [recentIsActive, setRecentIsActive] = useState(true);
   const [videoPlayerActive, setVideoPlayerActive] = useState(false);
   const [videoPath, setVideoPath] = useState("");
-  const [sortBy, setSortBy] = useState("");
+  const [sortBy, setSortBy] = useState("time");
   const [asc, setAscDesc] = useState(false);
+  const [filter, setFilter] = useState(false);
 
   const handleClick = (event: any) => {
     const target = event.target.id;
@@ -165,13 +166,13 @@ export default function page() {
     }
   };
 
-  const startVideo = (video: VideoArtifacts) => {
-    return (event: any) => {
-      setUploadIsActive(current => false);
-      setRecentIsActive(current => false);
-      setVideoPlayerActive(current => true);
-      setVideoPath(current => video.videoURL);
-      setcurrentVideoArtifacts(current => video)
+  const startProcessing = (video_path: string) => { 
+    return () => {
+      if(confirm('Do you want to re-process ' + video_path.split('/')[1].split('_')[0] + '?')){
+        fetch('http://127.0.0.1:8000/process?file_path=' + video_path, {
+          method: 'POST'
+        })
+      }
     }
   }
 
@@ -228,15 +229,17 @@ export default function page() {
         )}
         {recentIsActive ?(
           <div id="recentlist" style={{marginTop: 40}} className="w-full">
-            <form className="my-10">
-                <span className="ml-96">Sort By</span>
+            <form className="my-10 justify-center flex">
+                <span className="pl-32 pr-2">Contains Faces</span>
+                <input type="checkbox" onChange={(e) => setFilter(curr => e.target.checked)}/>
+                <span className="pl-32">Sort By</span>
                 <select defaultValue={'time'} onChange={(e) => setSortBy(current => e.target.value)}>
                   <option value="time">Timestamp</option>
                   <option value="title">Title</option>
                   <option value="processed">Processed</option>
                 </select>
               
-                <span className="ml-96">Sort By</span>
+                <span className="pl-32">Sort By</span>
                 <select defaultValue={'descending'} onChange={(e) => setAscDesc(e.target.value === 'ascending')}>
                   <option value="ascending">Ascending</option>
                   <option value="descending">Descending</option>
@@ -244,13 +247,22 @@ export default function page() {
             </form>
               {
                 recentVideos.sort((a,b) =>{
-                  if(asc){
-                    return new Date(a.date).getTime() - new Date(b.date).getTime();
-                  } else {
-                    return new Date(b.date).getTime() - new Date(a.date).getTime();
+                  var value = new Date(a.date).getTime() - new Date(b.date).getTime();
+                  if(sortBy == 'time') {
+                    value = new Date(a.date).getTime() - new Date(b.date).getTime();
+                  } else if(sortBy == 'title') {
+                      value = b.name.localeCompare(a.name);
+                  } else if(sortBy == 'processed') {
+                    value = b.processed.localeCompare(a.processed);
                   }
+                  return asc ? value : -1 * value;
+                }).filter((video) =>{
+                  if(!filter){
+                    return true;
+                  }
+                  return video.image_path?.length > 0
                 }).map((video) => {
-                  return <RecentUpload onClick={startVideo} fileName={video.name} processed={video.processed} date={video.date} key={video.video_path} thumbnail={video.thumbnail_path} video_path={video.video_path} image_path={video.image_path}/>;
+                  return <RecentUpload onClick={startProcessing} fileName={video.name} processed={video.processed} date={video.date} key={video.video_path} thumbnail={video.thumbnail_path} video_path={video.video_path} image_path={video.image_path}/>;
                 })
               }
           </div>
