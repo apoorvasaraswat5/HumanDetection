@@ -21,6 +21,7 @@ A law enforcement official can use our tool while processing videos and view tim
 ## Model Used
 
 [DETR resnet 50](https://huggingface.co/facebook/detr-resnet-50)
+
 [Whisper](https://github.com/openai/whisper)
 
 ## Output
