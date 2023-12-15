@@ -45,7 +45,7 @@ A law enforcement official can use our tool while processing videos and view tim
 
 ![Alt text](docs/sentiment.png?raw=true "Output")
 
-### Sort and filter through upload videos -
+### Sort and filter through uploaded videos -
 
 ![Alt text](docs/sortandfilter.png?raw=true "Output")
 
