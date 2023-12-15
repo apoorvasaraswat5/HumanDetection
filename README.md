@@ -24,6 +24,20 @@ A law enforcement official can use our tool while processing videos and view tim
 
 [Whisper](https://github.com/openai/whisper)
 
+## Techstack used
+
+![Alt text](docs/techstack.png?raw=true "Output")
+
+## Running the application
+Add the following information in the .env file in the root directory -
+
+SUPABASE_URL = "your_supabase_url"
+
+SUPABASE_KEY = "your_supabase_key"
+
+Refer the following [guide](https://supabase.com/docs/guides/api#api-url-and-keys) to get the supabase url and key.
+
+
 ## Output
 
 ### Human detection in video -
@@ -49,6 +63,7 @@ A law enforcement official can use our tool while processing videos and view tim
 ### Sort and filter through uploaded videos -
 
 ![Alt text](docs/sortandfilter.png?raw=true "Output")
+
 
 ## Useful Links
 [Jira](https://rwbaker.atlassian.net/jira/software/projects/OM596/boards/2)
