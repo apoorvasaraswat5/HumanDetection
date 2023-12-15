@@ -205,19 +205,22 @@ Next steps:
    - can create a dataset yourself and fine tune on that
 
 **Week of 10/30/23 - 11/5/23: 7**
-- TBD
+- Added sentiment analysis feature
+- Added timestamps along with unique faces to seek on the video playback
 
 **Week of 11/6/23 - 11/12/23: 8**
-- TBD
+- Stitching frontend and backend
+- Bug fixes
 
 **Week of 11/13/23 - 11/19/23: 9**
-- TBD
+- Team started working on presentation
+- Minor tweaks and fixing of bugs
 
 **Week of 11/20/23 - 11/26/23: 10**
-- TBD
+- Thanksgiving break
 
 **Week of 11/27/23 - 12/3/23: 11**
-- TBD
+- Presentation preperation
 
 **Week of 12/4/23 - 12/10/23: 12**
-- TBD
+- Presentation
