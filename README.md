@@ -18,13 +18,36 @@ A law enforcement official can use our tool while processing videos and view tim
 
 [Audio (Mozilla CommonVoice)](https://commonvoice.mozilla.org/en/datasets)
 
-## Sample Output
+## Model Used
 
-TBD
+[DETR resnet 50](https://huggingface.co/facebook/detr-resnet-50)
+[Whisper](https://github.com/openai/whisper)
 
-## Project Setup
+## Output
 
-TBD
+### Human detection in video -
+
+![Alt text](docs/output.png?raw=true "Output")
+
+### Unique faces detected -
+
+![Alt text](docs/uniquefaces.png?raw=true "Output")
+
+### Seek through the unique faces detected -
+
+![Alt text](docs/seek.png?raw=true "Output")
+
+### Human detection in audio -
+
+![Alt text](docs/audio%20output.png?raw=true "Output")
+
+### Sentiment Analysis in audio -
+
+![Alt text](docs/sentiment.png?raw=true "Output")
+
+### Sort and filter through upload videos -
+
+![Alt text](docs/sortandfilter.png?raw=true "Output")
 
 ## Useful Links
 [Jira](https://rwbaker.atlassian.net/jira/software/projects/OM596/boards/2)
